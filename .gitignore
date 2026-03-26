@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+.venv/
+env/
+
+# Environment
+.env
+!.env.example
+
+# Database
+data/
+*.db
+*.sqlite3
+
+# Uploads & outputs (user data — never commit)
+input/
+output/
+
+# Logs
+logs/
+*.log
+
+# Flask migrations (commit your own)
+migrations/versions/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Docker
+*.override.yml

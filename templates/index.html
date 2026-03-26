@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Matrimony AI Agent</title>
+<!-- CSRF token for all AJAX requests -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* ── Design tokens ─────────────────────────────────────────────────── */
+:root{
+  --bg:#0a0a0f;--surf:#111118;--surf2:#18181f;--surf3:#1e1e28;
+  --border:#2a2a3a;--accent:#f0a500;--accent2:#e05c00;
+  --green:#00c896;--red:#ff4757;--blue:#4f8ef7;--purple:#c792ea;
+  --text:#e8e8f0;--muted:#6b6b80;
+  --mono:'JetBrains Mono',monospace;--ui:'Syne',sans-serif;--serif:'Fraunces',serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--ui);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(240,165,0,.025)1px,transparent 1px),
+    linear-gradient(90deg,rgba(240,165,0,.025)1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;z-index:0;}
+.z1{position:relative;z-index:1;}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+header{border-bottom:1px solid var(--border);padding:12px 0;position:sticky;top:0;
+  background:rgba(10,10,15,.96);backdrop-filter:blur(20px);z-index:200;}
+.hdr{max-width:1440px;margin:0 auto;padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.logo-txt{font-size:15px;font-weight:800;letter-spacing:-.5px;}
+.logo-txt span{color:var(--accent);}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+
+/* User avatar + menu */
+.user-menu{display:flex;align-items:center;gap:10px;cursor:pointer;position:relative;}
+.user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);
+  object-fit:cover;background:var(--surf3);}
+.user-avatar-placeholder{width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000;}
+.user-name{font-size:12px;font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.user-email{font-size:10px;color:var(--muted);font-family:var(--mono);}
+.user-dropdown{
+  position:absolute;top:calc(100% + 10px);right:0;
+  background:var(--surf);border:1px solid var(--border);border-radius:10px;
+  min-width:200px;z-index:300;overflow:hidden;
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+  display:none;
+}
+.user-dropdown.open{display:block;}
+.dd-info{padding:14px 16px;border-bottom:1px solid var(--border);}
+.dd-name{font-size:13px;font-weight:700;}
+.dd-email{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px;}
+.dd-item{display:flex;align-items:center;gap:9px;padding:10px 16px;
+  font-size:12px;color:var(--muted);text-decoration:none;cursor:pointer;
+  transition:background .15s;}
+.dd-item:hover{background:var(--surf2);color:var(--text);}
+.dd-item.danger{color:var(--red);}
+.dd-item.danger:hover{background:rgba(255,71,87,.08);}
+
+.badge{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:20px;
+  display:flex;align-items:center;gap:5px;}
+.badge-green{color:var(--green);border:1px solid rgba(0,200,150,.3);}
+.badge-purple{color:var(--purple);border:1px solid rgba(199,146,234,.3);}
+.pulse{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+/* ── Layout ──────────────────────────────────────────────────────────── */
+.wrap{max-width:1440px;margin:0 auto;padding:0 24px;}
+.grid{display:grid;grid-template-columns:380px 1fr;gap:18px;padding:18px 0 60px;}
+@media(max-width:900px){.grid{grid-template-columns:1fr;}}
+
+/* ── Card ──────────────────────────────────────────────────────────── */
+.card{background:var(--surf);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;}
+.card-h-l{display:flex;align-items:center;gap:7px;}
+.card-h h3{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.card-b{padding:18px;}
+
+/* ── FILE TYPE SELECTOR ──────────────────────────────────────────────── */
+.type-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+.type-card{
+  background:var(--surf2);border:2px solid var(--border);border-radius:10px;
+  padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+}
+.type-card:hover{border-color:rgba(240,165,0,.4);background:rgba(240,165,0,.04);}
+.type-card.active{border-color:var(--accent);background:rgba(240,165,0,.08);
+  box-shadow:0 0 0 1px rgba(240,165,0,.2);}
+.type-card.active .type-icon{filter:drop-shadow(0 0 6px var(--accent));}
+.type-icon{font-size:24px;line-height:1;}
+.type-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);}
+.type-card.active .type-label{color:var(--accent);}
+.type-exts{font-family:var(--mono);font-size:9px;color:var(--muted);}
+
+/* ── Upload drop zone ──────────────────────────────────────────────── */
+.drop{border:2px dashed var(--border);border-radius:9px;padding:28px 18px;
+  text-align:center;cursor:pointer;transition:all .2s;position:relative;
+  background:var(--surf2);margin-bottom:14px;}
+.drop:hover,.drop.over{border-color:var(--accent);background:rgba(240,165,0,.04);}
+.drop.hidden{display:none;}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.drop-ico{font-size:28px;margin-bottom:6px;display:block;}
+.drop h4{font-size:13px;font-weight:700;margin-bottom:3px;}
+.drop p{font-size:11px;color:var(--muted);}
+.drop-hint{font-family:var(--mono);font-size:10px;color:var(--muted);
+  background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.15);
+  border-radius:5px;padding:4px 8px;display:inline-block;margin-top:6px;}
+
+/* File info row */
+.fi{display:none;align-items:center;gap:9px;background:rgba(240,165,0,.07);
+  border:1px solid rgba(240,165,0,.25);border-radius:7px;padding:9px 12px;margin-bottom:14px;}
+.fi.on{display:flex;}
+.fi-icon{font-size:18px;}
+.fi-meta{flex:1;min-width:0;}
+.fi-name{font-family:var(--mono);font-size:11px;color:var(--accent);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fi-sz{font-family:var(--mono);font-size:10px;color:var(--muted);}
+.fi-rm{margin-left:auto;cursor:pointer;color:var(--muted);font-size:16px;flex-shrink:0;}
+.fi-rm:hover{color:var(--red);}
+
+/* Preview panel */
+.preview-wrap{display:none;margin-bottom:14px;}
+.preview-wrap.on{display:block;}
+.preview-img{max-width:100%;max-height:180px;border-radius:8px;border:1px solid var(--border);object-fit:contain;}
+.preview-pdf{width:100%;height:180px;border-radius:8px;border:1px solid var(--border);}
+.preview-doc{background:var(--surf2);border:1px solid var(--border);border-radius:8px;
+  padding:14px;font-size:11px;font-family:var(--mono);color:var(--muted);
+  white-space:pre-wrap;max-height:180px;overflow-y:auto;}
+
+/* Error banner */
+.err-box{display:none;background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);
+  border-radius:7px;padding:10px 13px;font-size:12px;color:var(--red);
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.err-box.on{display:flex;}
+
+/* ── Form fields ──────────────────────────────────────────────────── */
+.f{margin-bottom:12px;}
+.f label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.f input,.f select,.f textarea{width:100%;background:var(--surf2);border:1px solid var(--border);
+  border-radius:7px;padding:9px 12px;font-family:var(--mono);font-size:12px;
+  color:var(--text);outline:none;transition:border-color .2s;}
+.f input:focus,.f select:focus{border-color:var(--accent);}
+.f select option{background:var(--surf2);}
+.f input[type=range]{padding:4px 0;cursor:pointer;accent-color:var(--accent);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.hint{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:3px;}
+.hint.warn{color:var(--accent);}
+.sec{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);border-top:1px solid var(--border);padding-top:12px;margin:12px 0 8px;}
+input[type=password]{letter-spacing:2px;}
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;
+  font-family:var(--ui);font-weight:700;cursor:pointer;border:none;transition:all .2s;letter-spacing:.3px;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#000;border-radius:9px;padding:13px;font-size:14px;width:100%;}
+.btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(240,165,0,.3);}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-sm{font-size:11px;padding:6px 12px;border-radius:6px;
+  border:1px solid var(--border);background:var(--surf2);color:var(--muted);}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── Tabs ────────────────────────────────────────────────────────── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);padding:18px 0 0;}
+.tab{font-family:var(--ui);font-size:12px;font-weight:700;padding:9px 16px;
+  cursor:pointer;border:none;background:none;color:var(--muted);letter-spacing:.5px;
+  border-bottom:2px solid transparent;transition:all .2s;}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+.tab:hover:not(.on){color:var(--text);}
+.tpanel{display:none;}.tpanel.on{display:flex;flex-direction:column;gap:14px;}
+
+/* ── Progress ────────────────────────────────────────────────────── */
+.prog-wrap{background:var(--surf2);border-radius:999px;height:4px;margin:12px 0 6px;overflow:hidden;}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));
+  border-radius:999px;width:0%;transition:width .5s ease;}
+.prog-stats{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);}
+.sv{color:var(--text);font-weight:600;}
+.status-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;
+  padding:3px 9px;border-radius:20px;}
+.status-queued{color:var(--muted);border:1px solid var(--border);}
+.status-running{color:var(--blue);border:1px solid rgba(79,142,247,.3);}
+.status-done{color:var(--green);border:1px solid rgba(0,200,150,.3);}
+.status-failed{color:var(--red);border:1px solid rgba(255,71,87,.3);}
+.status-paused{color:var(--accent);border:1px solid rgba(240,165,0,.3);}
+.pause-box{display:none;align-items:center;gap:8px;background:rgba(240,165,0,.08);
+  border:1px solid rgba(240,165,0,.3);border-radius:7px;padding:9px 12px;
+  font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:8px;}
+.pause-box.on{display:flex;}
+
+/* ── Terminal ────────────────────────────────────────────────────── */
+.term{background:#070710;border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+.term-bar{background:var(--surf2);padding:8px 13px;display:flex;align-items:center;
+  gap:6px;border-bottom:1px solid var(--border);}
+.dot{width:9px;height:9px;border-radius:50%;}
+.dr{background:#ff5f57;}.dy{background:#febc2e;}.dg{background:#28c840;}
+.term-bar-title{margin-left:8px;font-family:var(--mono);font-size:10px;color:var(--muted);}
+#logBox{height:260px;overflow-y:auto;padding:14px 16px;font-family:var(--mono);font-size:11px;line-height:1.7;}
+.log-STEP{color:var(--blue);}
+.log-OK{color:var(--green);}
+.log-WARN{color:var(--accent);}
+.log-ERROR{color:var(--red);}
+.log-INFO{color:var(--muted);}
+.log-SKIP{color:#555577;}
+
+/* ── Profile cards ───────────────────────────────────────────────── */
+.profiles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.profile-card{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:16px;transition:border-color .2s;}
+.profile-card:hover{border-color:rgba(240,165,0,.3);}
+.pc-name{font-size:14px;font-weight:700;margin-bottom:4px;}
+.pc-sub{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:12px;}
+.pc-fields{display:flex;flex-wrap:wrap;gap:6px;}
+.pc-field{background:var(--surf3);border-radius:5px;padding:3px 8px;
+  font-size:10px;font-family:var(--mono);}
+.pc-field span{color:var(--muted);}
+
+/* ── Export panel ────────────────────────────────────────────────── */
+.export-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.exp-btn{background:var(--surf2);border:1px solid var(--border);border-radius:9px;
+  padding:14px;text-align:center;cursor:pointer;transition:all .2s;}
+.exp-btn:hover{border-color:var(--accent);background:rgba(240,165,0,.06);transform:translateY(-1px);}
+.exp-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.exp-ico{font-size:22px;display:block;margin-bottom:5px;}
+.exp-label{font-size:11px;font-weight:700;}
+.exp-desc{font-size:10px;color:var(--muted);font-family:var(--mono);}
+
+/* ── Chat ─────────────────────────────────────────────────────────── */
+.chat-box{height:280px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:88%;padding:10px 13px;border-radius:10px;font-size:12px;line-height:1.6;}
+.msg-user{align-self:flex-end;background:rgba(240,165,0,.12);border:1px solid rgba(240,165,0,.2);}
+.msg-ai{align-self:flex-start;background:var(--surf2);border:1px solid var(--border);}
+.msg-ai code{background:var(--surf3);padding:1px 5px;border-radius:3px;font-family:var(--mono);}
+.chat-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border);}
+.chat-input{flex:1;background:var(--surf2);border:1px solid var(--border);border-radius:8px;
+  padding:9px 12px;font-family:var(--mono);font-size:12px;color:var(--text);outline:none;}
+.chat-input:focus{border-color:var(--accent);}
+.chat-send{background:var(--accent);color:#000;border:none;border-radius:8px;
+  padding:9px 16px;font-weight:700;font-size:12px;cursor:pointer;transition:opacity .15s;}
+.chat-send:hover{opacity:.85;}
+.chat-send:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── History ──────────────────────────────────────────────────────── */
+.hist-item{background:var(--surf2);border:1px solid var(--border);border-radius:9px;
+  padding:13px 15px;display:flex;align-items:center;gap:12px;transition:border-color .15s;}
+.hist-item:hover{border-color:rgba(240,165,0,.3);}
+.hist-icon{font-size:20px;flex-shrink:0;}
+.hist-meta{flex:1;min-width:0;}
+.hist-name{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hist-detail{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px;}
+.hist-status{flex-shrink:0;}
+
+/* ── Misc ──────────────────────────────────────────────────────────── */
+.empty{text-align:center;padding:36px 20px;color:var(--muted);font-size:12px;}
+.empty-ico{font-size:36px;display:block;margin-bottom:10px;opacity:.4;}
+.model-pill{font-family:var(--mono);font-size:9px;color:var(--purple);
+  border:1px solid rgba(199,146,234,.25);border-radius:10px;padding:2px 7px;}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+<header>
+  <div class="hdr z1">
+    <a href="/" class="logo">
+      <div class="logo-icon">💍</div>
+      <div class="logo-txt">Matrimony<span>AI</span></div>
+    </a>
+
+    <div class="hdr-right">
+      <div class="badge badge-green">
+        <div class="pulse"></div> Live
+      </div>
+      <div class="badge badge-purple" id="modelBadge">
+        ⚡ llama-3.3-70b
+      </div>
+
+      <!-- User Menu -->
+      <div class="user-menu" id="userMenu" onclick="toggleDropdown()">
+        {% if user.profile_image %}
+          <img class="user-avatar" src="{{ user.profile_image }}" alt="{{ user.name }}" onerror="this.style.display='none';document.getElementById('avatarFallback').style.display='flex';">
+          <div class="user-avatar-placeholder" id="avatarFallback" style="display:none;">{{ user.name[0].upper() }}</div>
+        {% else %}
+          <div class="user-avatar-placeholder">{{ user.name[0].upper() }}</div>
+        {% endif %}
+        <div>
+          <div class="user-name">{{ user.name }}</div>
+          <div class="user-email">{{ user.email }}</div>
+        </div>
+        <span style="color:var(--muted);font-size:12px;">▾</span>
+
+        <div class="user-dropdown" id="userDropdown">
+          <div class="dd-info">
+            <div class="dd-name">{{ user.name }}</div>
+            <div class="dd-email">{{ user.email }}</div>
+          </div>
+          <a class="dd-item" onclick="switchTab('history');closeDropdown()">📂 Upload History</a>
+          <a class="dd-item danger" href="{{ url_for('auth.logout') }}">🚪 Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── MAIN GRID ──────────────────────────────────────────────────────── -->
+<div class="wrap z1">
+<div class="grid">
+
+  <!-- ═══ LEFT PANEL ═══════════════════════════════════════════════════ -->
+  <div style="display:flex;flex-direction:column;gap:18px;">
+
+    <!-- Upload Card -->
+    <div class="card">
+      <div class="card-h">
+        <div class="card-h-l">
+          <span>📤</span>
+          <h3>Upload File</h3>
+        </div>
+        <span class="model-pill" id="currentModel">llama-3.3-70b</span>
+      </div>
+      <div class="card-b">
+
+        <!-- ── FILE TYPE SELECTOR ── -->
+        <div class="f">
+          <label>Select File Type</label>
+          <div class="type-selector">
+            <div class="type-card active" data-type="document" onclick="selectFileType('document')">
+              <span class="type-icon">📄</span>
+              <div class="type-label">Doc</div>
+              <div class="type-exts">PDF · DOCX</div>
+            </div>
+            <div class="type-card" data-type="image" onclick="selectFileType('image')">
+              <span class="type-icon">🖼️</span>
+              <div class="type-label">Image</div>
+              <div class="type-exts">JPG · PNG</div>
+            </div>
+            <div class="type-card" data-type="text" onclick="selectFileType('text')">
+              <span class="type-icon">📝</span>
+              <div class="type-label">Text</div>
+              <div class="type-exts">TXT</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error box -->
+        <div class="err-box" id="errBox">⚠️ <span id="errMsg"></span></div>
+
+        <!-- Drop zone (changes based on type) -->
+        <div class="drop" id="dropZone">
+          <input type="file" id="fileInput" accept=".pdf,.docx,.doc,.txt"
+                 onchange="handleFileSelect(this.files[0])">
+          <span class="drop-ico" id="dropIco">📄</span>
+          <h4>Drop file here or click to browse</h4>
+          <p>PDF, DOCX or TXT — up to 50 MB</p>
+          <span class="drop-hint" id="dropHint">Accepted: .pdf .docx .doc .txt</span>
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-wrap" id="previewWrap">
+          <img id="previewImg" class="preview-img" style="display:none;">
+          <iframe id="previewPdf" class="preview-pdf" style="display:none;"></iframe>
+          <div id="previewDoc" class="preview-doc" style="display:none;"></div>
+        </div>
+
+        <!-- Selected file info -->
+        <div class="fi" id="fileInfo">
+          <span class="fi-icon" id="fiIcon">📄</span>
+          <div class="fi-meta">
+            <div class="fi-name" id="fiName">—</div>
+            <div class="fi-sz" id="fiSz">—</div>
+          </div>
+          <span class="fi-rm" onclick="clearFile()">✕</span>
+        </div>
+
+        <!-- API Key -->
+        <div class="f">
+          <label>Groq API Key</label>
+          <input type="password" id="apiKey" placeholder="gsk_..." autocomplete="off">
+          <div class="hint">
+            Get free key at <a href="https://console.groq.com" target="_blank" style="color:var(--accent);">console.groq.com</a>
+          </div>
+        </div>
+
+        <div class="sec">Advanced Options</div>
+        <div class="frow">
+          <div class="f">
+            <label>Model</label>
+            <select id="modelSel" onchange="updateModelBadge()">
+              <option value="llama-3.3-70b-versatile">LLaMA 3.3 70b</option>
+              <option value="llama-3.1-8b-instant">LLaMA 3.1 8b</option>
+              <option value="gemma2-9b-it">Gemma2 9b</option>
+            </select>
+          </div>
+          <div class="f">
+            <label>Delay (s): <span id="delayVal">2.0</span></label>
+            <input type="range" id="delayRange" min="1" max="5" step="0.5" value="2"
+                   oninput="document.getElementById('delayVal').textContent=parseFloat(this.value).toFixed(1)">
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="uploadBtn" onclick="startUpload()" disabled>
+          ⚡ Process File
+        </button>
+      </div>
+    </div>
+
+    <!-- Processing Status Card -->
+    <div class="card" id="statusCard" style="display:none;">
+      <div class="card-h">
+        <div class="card-h-l">
+          <span>⚙️</span>
+          <h3>Processing</h3>
+        </div>
+        <span class="status-badge status-queued" id="statusBadge">queued</span>
+      </div>
+      <div class="card-b">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:6px;" id="statusFile">—</div>
+        <div class="prog-wrap"><div class="prog-bar" id="progBar"></div></div>
+        <div class="prog-stats">
+          <span>Pages: <span class="sv" id="statPages">0/0</span></span>
+          <span>Profiles: <span class="sv" id="statProfiles">0</span></span>
+          <span>Model: <span class="sv model-pill" id="statModel">—</span></span>
+        </div>
+        <div class="pause-box" id="pauseBox">⏸ <span id="pauseReason"></span></div>
+      </div>
+    </div>
+
+  </div><!-- /LEFT PANEL -->
+
+  <!-- ═══ RIGHT PANEL ══════════════════════════════════════════════════ -->
+  <div class="card" style="overflow:visible;">
+    <div class="tabs" style="padding:0 18px;">
+      <button class="tab on"  onclick="switchTab('logs')"    id="tab-logs">Logs</button>
+      <button class="tab"     onclick="switchTab('profiles')" id="tab-profiles">Profiles <span id="profileCount" style="opacity:.5;"></span></button>
+      <button class="tab"     onclick="switchTab('export')"  id="tab-export">Export</button>
+      <button class="tab"     onclick="switchTab('chat')"    id="tab-chat">AI Chat</button>
+      <button class="tab"     onclick="switchTab('history')" id="tab-history">History</button>
+    </div>
+
+    <!-- LOGS -->
+    <div class="tpanel on" id="panel-logs" style="padding:0;">
+      <div class="term">
+        <div class="term-bar">
+          <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+          <div class="term-bar-title">processing.log — real-time output</div>
+        </div>
+        <div id="logBox">
+          <div class="log-INFO">
+            <span style="color:var(--muted);">[ready] </span>Upload a file to begin extraction…
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILES -->
+    <div class="tpanel" id="panel-profiles" style="padding:14px;">
+      <div class="empty" id="profilesEmpty">
+        <span class="empty-ico">👤</span>
+        Extracted profiles will appear here
+      </div>
+      <div class="profiles-grid" id="profilesGrid"></div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="tpanel" id="panel-export" style="padding:18px;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">
+        Download extracted profiles in your preferred format.
+        <span id="exportCount" style="color:var(--text);font-weight:600;"></span>
+      </div>
+      <div class="export-grid">
+        <button class="exp-btn" onclick="exportData('sql')" id="exp-sql" disabled>
+          <span class="exp-ico">🗄️</span>
+          <div class="exp-label">SQL</div>
+          <div class="exp-desc">INSERT statements</div>
+        </button>
+        <button class="exp-btn" onclick="exportData('csv')" id="exp-csv" disabled>
+          <span class="exp-ico">📊</span>
+          <div class="exp-label">CSV</div>
+          <div class="exp-desc">Spreadsheet-ready</div>
+        </button>
+        <button class="exp-btn" onclick="exportData('excel')" id="exp-excel" disabled>
+          <span class="exp-ico">📗</span>
+          <div class="exp-label">Excel</div>
+          <div class="exp-desc">.xlsx workbook</div>
+        </button>
+        <button class="exp-btn" onclick="exportData('json')" id="exp-json" disabled>
+          <span class="exp-ico">🔷</span>
+          <div class="exp-label">JSON</div>
+          <div class="exp-desc">Structured data</div>
+        </button>
+      </div>
+      <div class="f" style="margin-top:14px;">
+        <label>Table / Filename</label>
+        <input type="text" id="tableInput" value="register" placeholder="SQL table name">
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="tpanel" id="panel-chat" style="padding:0;gap:0;">
+      <div class="chat-box" id="chatBox">
+        <div class="msg msg-ai">
+          👋 Hi! Upload and process a file, then ask me about the extracted profiles.
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" placeholder="Ask about profiles…"
+               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}">
+        <button class="chat-send" id="chatSend" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="tpanel" id="panel-history" style="padding:14px;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:11px;color:var(--muted);">Your recent uploads</span>
+        <button class="btn btn-sm" onclick="loadHistory()">↻ Refresh</button>
+      </div>
+      <div id="historyList">
+        <div class="empty"><span class="empty-ico">📂</span>Loading history…</div>
+      </div>
+    </div>
+
+  </div><!-- /RIGHT PANEL -->
+
+</div><!-- /grid -->
+</div><!-- /wrap -->
+
+<script>
+// ── CSRF helper ────────────────────────────────────────────────────────
+const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+function fetchJSON(url, opts = {}) {
+  return fetch(url, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': CSRF,
+      ...(opts.headers || {}),
+    },
+  });
+}
+
+// ── State ──────────────────────────────────────────────────────────────
+let currentJobId  = null;
+let pollInterval  = null;
+let selectedFile  = null;
+let selectedType  = 'document';
+
+// ── File-type config ───────────────────────────────────────────────────
+const TYPE_CONFIG = {
+  document: {
+    accept: '.pdf,.docx,.doc,.txt',
+    hint:   'Accepted: .pdf .docx .doc .txt',
+    ico:    '📄',
+    maxMB:  50,
+    exts:   ['pdf','docx','doc','txt'],
+  },
+  image: {
+    accept: '.jpg,.jpeg,.png,.gif,.webp',
+    hint:   'Accepted: .jpg .jpeg .png .gif .webp',
+    ico:    '🖼️',
+    maxMB:  10,
+    exts:   ['jpg','jpeg','png','gif','webp'],
+  },
+  text: {
+    accept: '.txt',
+    hint:   'Accepted: .txt',
+    ico:    '📝',
+    maxMB:  5,
+    exts:   ['txt'],
+  },
+};
+
+// ── File Type Selector ─────────────────────────────────────────────────
+function selectFileType(type) {
+  selectedType = type;
+  clearFile();
+  document.querySelectorAll('.type-card').forEach(c =>
+    c.classList.toggle('active', c.dataset.type === type));
+
+  const cfg = TYPE_CONFIG[type];
+  document.getElementById('fileInput').accept = cfg.accept;
+  document.getElementById('dropIco').textContent  = cfg.ico;
+  document.getElementById('dropHint').textContent = cfg.hint;
+  document.querySelector('#dropZone p').textContent =
+    `${cfg.hint.replace('Accepted: ','').toUpperCase()} — up to ${cfg.maxMB} MB`;
+}
+
+// ── File validation ────────────────────────────────────────────────────
+function validateFile(file) {
+  const cfg = TYPE_CONFIG[selectedType];
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  if (!cfg.exts.includes(ext)) {
+    return `Invalid file type ".${ext}" for selected category. Allowed: ${cfg.exts.join(', ')}`;
+  }
+  if (file.size > cfg.maxMB * 1024 * 1024) {
+    return `File too large (${(file.size/1024/1024).toFixed(1)} MB). Max is ${cfg.maxMB} MB.`;
+  }
+  return null;
+}
+
+function showError(msg) {
+  const b = document.getElementById('errBox');
+  document.getElementById('errMsg').textContent = msg;
+  b.classList.add('on');
+}
+function hideError() {
+  document.getElementById('errBox').classList.remove('on');
+}
+
+// ── File handling ──────────────────────────────────────────────────────
+function handleFileSelect(file) {
+  if (!file) return;
+  hideError();
+
+  const err = validateFile(file);
+  if (err) { showError(err); return; }
+
+  selectedFile = file;
+  const ext    = file.name.split('.').pop().toLowerCase();
+  const icons  = {pdf:'📄',docx:'📝',doc:'📝',txt:'📋',jpg:'🖼️',jpeg:'🖼️',png:'🖼️',gif:'🖼️',webp:'🖼️'};
+
+  document.getElementById('fiIcon').textContent = icons[ext] || '📄';
+  document.getElementById('fiName').textContent = file.name;
+  document.getElementById('fiSz').textContent   = formatSize(file.size);
+  document.getElementById('fileInfo').classList.add('on');
+
+  showPreview(file, ext);
+  document.getElementById('uploadBtn').disabled = false;
+}
+
+function showPreview(file, ext) {
+  const wrap = document.getElementById('previewWrap');
+  const img  = document.getElementById('previewImg');
+  const pdf  = document.getElementById('previewPdf');
+  const doc  = document.getElementById('previewDoc');
+
+  // Hide all
+  [img, pdf, doc].forEach(el => el.style.display = 'none');
+
+  if (['jpg','jpeg','png','gif','webp'].includes(ext)) {
+    const url = URL.createObjectURL(file);
+    img.src = url;
+    img.style.display = 'block';
+    wrap.classList.add('on');
+  } else if (ext === 'pdf') {
+    const url = URL.createObjectURL(file);
+    pdf.src = url;
+    pdf.style.display = 'block';
+    wrap.classList.add('on');
+  } else if (['txt','docx','doc'].includes(ext) && ext === 'txt') {
+    const reader = new FileReader();
+    reader.onload = e => {
+      doc.textContent = e.target.result.slice(0, 500) + (e.target.result.length > 500 ? '…' : '');
+      doc.style.display = 'block';
+      wrap.classList.add('on');
+    };
+    reader.readAsText(file);
+  } else {
+    wrap.classList.remove('on');
+  }
+}
+
+function clearFile() {
+  selectedFile = null;
+  document.getElementById('fileInfo').classList.remove('on');
+  document.getElementById('previewWrap').classList.remove('on');
+  document.getElementById('fileInput').value = '';
+  document.getElementById('uploadBtn').disabled = true;
+  hideError();
+}
+
+// Drag & drop
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('over');
+  const f = e.dataTransfer?.files?.[0];
+  if (f) handleFileSelect(f);
+});
+
+// ── Upload ─────────────────────────────────────────────────────────────
+async function startUpload() {
+  if (!selectedFile) return showError('Please select a file first.');
+  const apiKey = document.getElementById('apiKey').value.trim();
+  if (!apiKey)  return showError('Groq API key is required.');
+
+  const model = document.getElementById('modelSel').value;
+  const delay = document.getElementById('delayRange').value;
+
+  const fd = new FormData();
+  fd.append('file', selectedFile);
+  fd.append('api_key', apiKey);
+  fd.append('model', model);
+  fd.append('request_delay', delay);
+
+  document.getElementById('uploadBtn').disabled = true;
+  document.getElementById('logBox').innerHTML   = '';
+  document.getElementById('statusCard').style.display = 'block';
+  document.getElementById('statusFile').textContent = selectedFile.name;
+  switchTab('logs');
+
+  try {
+    const res  = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF },
+      body: fd,
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(data.error || 'Upload failed');
+      document.getElementById('uploadBtn').disabled = false;
+      return;
+    }
+
+    currentJobId = data.job_id;
+    logLine('OK', `Job started: ${data.job_id} [${data.file_type}]`);
+    pollInterval = setInterval(pollStatus, 2000);
+
+  } catch (err) {
+    showError('Network error: ' + err.message);
+    document.getElementById('uploadBtn').disabled = false;
+  }
+}
+
+// ── Polling ────────────────────────────────────────────────────────────
+async function pollStatus() {
+  if (!currentJobId) return;
+  try {
+    const res  = await fetch(`/api/status/${currentJobId}`);
+    const job  = await res.json();
+    if (!res.ok) return;
+
+    updateStatus(job);
+
+    if (['done','failed'].includes(job.status)) {
+      clearInterval(pollInterval);
+      pollInterval = null;
+      document.getElementById('uploadBtn').disabled = false;
+      if (job.status === 'done') onJobDone(job);
+    }
+  } catch { /* network glitch, retry next tick */ }
+}
+
+function updateStatus(job) {
+  const badge = document.getElementById('statusBadge');
+  badge.className  = `status-badge status-${job.status}`;
+  badge.textContent = job.status;
+
+  const total  = job.total_pages || 0;
+  const done   = job.processed || 0;
+  const pct    = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progBar').style.width  = pct + '%';
+  document.getElementById('statPages').textContent    = `${done}/${total}`;
+  document.getElementById('statProfiles').textContent = job.success || 0;
+  document.getElementById('statModel').textContent    = (job.current_model || '—').replace('-versatile','').replace('-instant','');
+  document.getElementById('modelBadge').textContent   = '⚡ ' + (job.current_model || '—').split('-').slice(0,3).join('-');
+
+  const pauseBox = document.getElementById('pauseBox');
+  if (job.pause_reason) {
+    pauseBox.classList.add('on');
+    document.getElementById('pauseReason').textContent = job.pause_reason;
+  } else {
+    pauseBox.classList.remove('on');
+  }
+
+  // Append new log entries
+  if (job.logs) renderLogs(job.logs);
+}
+
+let lastLogCount = 0;
+function renderLogs(logs) {
+  const box = document.getElementById('logBox');
+  const newLogs = logs.slice(lastLogCount);
+  newLogs.forEach(l => {
+    const div = document.createElement('div');
+    div.className = `log-${l.level}`;
+    div.textContent = `[${l.time}] ${l.level.padEnd(5)} | ${l.msg}`;
+    box.appendChild(div);
+  });
+  lastLogCount = logs.length;
+  if (newLogs.length) box.scrollTop = box.scrollHeight;
+}
+
+function logLine(level, msg) {
+  const box = document.createElement('div');
+  box.className = `log-${level}`;
+  const now = new Date().toTimeString().slice(0,8);
+  box.textContent = `[${now}] ${level.padEnd(5)} | ${msg}`;
+  document.getElementById('logBox').appendChild(box);
+}
+
+// ── Job done ───────────────────────────────────────────────────────────
+function onJobDone(job) {
+  renderProfiles(job.profiles || []);
+  const n = (job.profiles || []).length;
+  document.getElementById('profileCount').textContent = n ? `(${n})` : '';
+  document.getElementById('exportCount').textContent  = `${n} profile${n !== 1 ? 's' : ''} ready`;
+  ['sql','csv','excel','json'].forEach(f =>
+    document.getElementById('exp-' + f).disabled = n === 0);
+}
+
+// ── Profiles ───────────────────────────────────────────────────────────
+function renderProfiles(profiles) {
+  const grid  = document.getElementById('profilesGrid');
+  const empty = document.getElementById('profilesEmpty');
+  grid.innerHTML = '';
+  if (!profiles.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  const KEY_SHOW = ['Age','Gender','Education','Occupation','City','State','Caste','Religion'];
+  profiles.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'profile-card';
+    const fields = KEY_SHOW
+      .filter(k => p[k])
+      .map(k => `<span class="pc-field"><span>${k}:</span> ${p[k]}</span>`)
+      .join('');
+    card.innerHTML = `
+      <div class="pc-name">${p.Name || 'Unknown'}</div>
+      <div class="pc-sub">${p.Mobile || ''} ${p.DOB ? '· '+p.DOB : ''}</div>
+      <div class="pc-fields">${fields}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ── Export ─────────────────────────────────────────────────────────────
+async function exportData(fmt) {
+  if (!currentJobId) return;
+  const table = document.getElementById('tableInput').value.trim() || 'register';
+
+  const res = await fetchJSON(`/api/export/${currentJobId}`, {
+    method:  'POST',
+    body: JSON.stringify({ format: fmt, table }),
+  });
+  if (!res.ok) { const e = await res.json(); return showError(e.error); }
+
+  const blob = await res.blob();
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = `profiles.${fmt === 'excel' ? 'xlsx' : fmt}`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ── Chat ───────────────────────────────────────────────────────────────
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg   = input.value.trim();
+  if (!msg) return;
+
+  const apiKey = document.getElementById('apiKey').value.trim();
+  appendMsg('user', msg);
+  input.value = '';
+  document.getElementById('chatSend').disabled = true;
+
+  const thinking = appendMsg('ai', '⏳ Thinking…');
+
+  try {
+    const res  = await fetchJSON('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ job_id: currentJobId, message: msg, api_key: apiKey }),
+    });
+    const data = await res.json();
+    thinking.textContent = data.reply || data.error || 'No response';
+  } catch (e) {
+    thinking.textContent = '⚠️ Network error';
+  }
+  document.getElementById('chatSend').disabled = false;
+}
+
+function appendMsg(role, text) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.className = `msg msg-${role}`;
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+// ── History ────────────────────────────────────────────────────────────
+async function loadHistory() {
+  const list = document.getElementById('historyList');
+  list.innerHTML = '<div class="empty"><span class="empty-ico">⏳</span>Loading…</div>';
+  try {
+    const res  = await fetch('/api/uploads');
+    const data = await res.json();
+    if (!data.length) {
+      list.innerHTML = '<div class="empty"><span class="empty-ico">📂</span>No uploads yet</div>';
+      return;
+    }
+    const icons = {pdf:'📄',docx:'📝',doc:'📝',txt:'📋',image:'🖼️'};
+    list.innerHTML = data.map(u => `
+      <div class="hist-item">
+        <span class="hist-icon">${icons[u.file_type]||'📄'}</span>
+        <div class="hist-meta">
+          <div class="hist-name">${u.original_filename}</div>
+          <div class="hist-detail">${u.file_type.toUpperCase()} · ${formatSize(u.file_size_bytes||0)} · ${u.profiles_count} profiles · ${fmtDate(u.created_at)}</div>
+        </div>
+        <div class="hist-status">
+          <span class="status-badge status-${u.status}">${u.status}</span>
+        </div>
+      </div>`).join('');
+  } catch {
+    list.innerHTML = '<div class="empty">Failed to load history</div>';
+  }
+}
+
+// ── Tabs ───────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t =>
+    t.classList.toggle('on', t.id === 'tab-' + name));
+  document.querySelectorAll('.tpanel').forEach(p =>
+    p.classList.toggle('on', p.id === 'panel-' + name));
+  if (name === 'history') loadHistory();
+}
+
+// ── Dropdown ───────────────────────────────────────────────────────────
+function toggleDropdown() {
+  document.getElementById('userDropdown').classList.toggle('open');
+}
+function closeDropdown() {
+  document.getElementById('userDropdown').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if (!document.getElementById('userMenu').contains(e.target)) closeDropdown();
+});
+
+// ── Helpers ────────────────────────────────────────────────────────────
+function formatSize(bytes) {
+  if (!bytes) return '0 B';
+  const units = ['B','KB','MB','GB'];
+  let i = 0; let v = bytes;
+  while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+  return v.toFixed(1) + ' ' + units[i];
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString(undefined, {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function updateModelBadge() {
+  const v = document.getElementById('modelSel').value;
+  document.getElementById('currentModel').textContent = v.split('-').slice(0,3).join('-');
+  document.getElementById('modelBadge').textContent   = '⚡ ' + v.split('-').slice(0,3).join('-');
+}
+
+// ── Init ───────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  loadHistory();
+});
+</script>
+</body>
+</html>
