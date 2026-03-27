@@ -1,0 +1,1019 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Dashboard — Matrimony AI Agent{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ── Dashboard layout ─────────────────────────────────────────────────── */
+.dashboard-wrap {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px 24px 60px;
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  gap: 18px;
+  align-items: start;
+}
+@media (max-width: 960px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+  :root { --sidebar-w: 100%; }
+}
+
+/* Workspace */
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Workspace tabs */
+.ws-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 5px;
+  flex-wrap: wrap;
+}
+.ws-tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.ws-tab .tab-ico { font-size: 14px; }
+.ws-tab .tab-count {
+  background: var(--surf3);
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 9px;
+  font-family: var(--mono);
+  color: var(--muted);
+}
+.ws-tab:hover { color: var(--text); background: var(--surf3); }
+.ws-tab.on {
+  background: var(--surf);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+.ws-tab.on .tab-count {
+  background: rgba(240,165,0,.15);
+  color: var(--accent);
+}
+
+/* Tab panels */
+.ws-panel { display: none; }
+.ws-panel.on { display: block; }
+
+/* Export panel */
+.export-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  align-items: center;
+  justify-content: space-between;
+}
+.export-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.export-title {
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.export-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+.export-btns {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.exp-btn {
+  padding: 7px 14px;
+  font-size: 11px;
+  border-radius: var(--radius);
+  background: var(--surf3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--ui);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.exp-btn:hover:not(:disabled) {
+  border-color: var(--border2);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+.exp-btn.excel:hover:not(:disabled)  { border-color: rgba(0,200,150,.4);  color: var(--green); }
+.exp-btn.json:hover:not(:disabled)   { border-color: rgba(199,146,234,.4); color: var(--purple); }
+.exp-btn.sql:hover:not(:disabled)    { border-color: rgba(79,142,247,.4);  color: var(--blue); }
+.exp-btn.csv:hover:not(:disabled)    { border-color: rgba(240,165,0,.4);   color: var(--accent); }
+.exp-btn:disabled { opacity: .35; cursor: not-allowed; transform: none !important; }
+
+/* Chat */
+.chat-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.chat-header {
+  padding: 12px 16px;
+  background: var(--surf2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.chat-box {
+  flex: 1;
+  min-height: 260px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg);
+}
+.msg {
+  max-width: 80%;
+  padding: 9px 13px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.msg-user {
+  align-self: flex-end;
+  background: rgba(240,165,0,.15);
+  border: 1px solid rgba(240,165,0,.25);
+  color: var(--text);
+}
+.msg-ai {
+  align-self: flex-start;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  background: var(--surf);
+}
+.chat-input {
+  flex: 1;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 13px;
+  font-family: var(--ui);
+  font-size: 12px;
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition);
+  resize: none;
+}
+.chat-input:focus { border-color: rgba(240,165,0,.4); }
+
+/* History list */
+.history-list { display: flex; flex-direction: column; gap: 8px; }
+.hist-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all var(--transition);
+  cursor: pointer;
+}
+.hist-item:hover { border-color: var(--border2); background: var(--surf3); }
+.hist-icon { font-size: 22px; flex-shrink: 0; }
+.hist-meta { flex: 1; min-width: 0; }
+.hist-name   { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-detail { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+.hist-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Preview panel */
+.preview-panel {
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.preview-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.prev-tab {
+  padding: 9px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition);
+  background: none;
+  border-top: none; border-left: none; border-right: none;
+  display: flex; align-items: center; gap: 6px;
+}
+.prev-tab:hover { color: var(--text); }
+.prev-tab.on { color: var(--accent); border-bottom-color: var(--accent); }
+.prev-panel { display: none; padding: 16px; }
+.prev-panel.on { display: block; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-wrap">
+  <div class="dashboard-grid">
+
+    <!-- ── Sidebar ──────────────────────────────────────────────────── -->
+    {% include 'components/upload_panel.html' %}
+
+    <!-- ── Main Workspace ──────────────────────────────────────────── -->
+    <main class="workspace z1">
+
+      <!-- Progress bar (shown when job is active) -->
+      {% include 'components/progress_bar.html' %}
+
+      <!-- Workspace tabs -->
+      <div class="ws-tabs" id="wsTabs">
+        <button class="ws-tab on" id="tab-results" onclick="switchTab('results')">
+          <span class="tab-ico">💍</span>
+          Results
+          <span class="tab-count" id="profileCount">0</span>
+        </button>
+        <button class="ws-tab" id="tab-excel" onclick="switchTab('excel')">
+          <span class="tab-ico">📊</span>
+          Excel View
+        </button>
+        <button class="ws-tab" id="tab-output" onclick="switchTab('output')">
+          <span class="tab-ico">⬡</span>
+          Export Output
+        </button>
+        <button class="ws-tab" id="tab-logs" onclick="switchTab('logs')">
+          <span class="tab-ico">📋</span>
+          Logs
+          <span class="tab-count" id="logCount">0</span>
+        </button>
+        <button class="ws-tab" id="tab-chat" onclick="switchTab('chat')">
+          <span class="tab-ico">💬</span>
+          AI Chat
+        </button>
+        <button class="ws-tab" id="tab-history" onclick="switchTab('history')">
+          <span class="tab-ico">📂</span>
+          History
+        </button>
+      </div>
+
+      <!-- ── Tab: Results ─────────────────────────────────────────── -->
+      <div class="ws-panel on" id="panel-results">
+        <!-- Export row -->
+        <div class="export-row" id="exportRow">
+          <div class="export-left">
+            <span style="font-size:18px">⬇</span>
+            <div>
+              <div class="export-title">Export Extracted Data</div>
+              <div class="export-count" id="exportCount">0 profiles ready</div>
+            </div>
+          </div>
+          <div class="export-btns">
+            <button class="exp-btn excel" id="exp-excel" disabled onclick="exportData('excel')">📊 Excel</button>
+            <button class="exp-btn json"  id="exp-json"  disabled onclick="exportData('json')">{ } JSON</button>
+            <button class="exp-btn sql"   id="exp-sql"   disabled onclick="exportData('sql')">🗄 SQL</button>
+            <button class="exp-btn csv"   id="exp-csv"   disabled onclick="exportData('csv')">📋 CSV</button>
+          </div>
+        </div>
+
+        <!-- Profile cards / table -->
+        {% include 'components/results_table.html' %}
+      </div>
+
+      <!-- ── Tab: Excel View ────────────────────────────────────── -->
+      <div class="ws-panel" id="panel-excel">
+        {% include 'components/excel_viewer.html' %}
+        <div class="empty-state" id="excelEmpty" style="padding:48px">
+          <span class="empty-state-icon">📊</span>
+          <p class="empty-state-title">No data to view</p>
+          <p class="empty-state-sub">Process a file first, then return here for the spreadsheet view</p>
+        </div>
+      </div>
+
+      <!-- ── Tab: Export Output ─────────────────────────────────── -->
+      <div class="ws-panel" id="panel-output">
+        <div class="preview-panel">
+          <div class="preview-tabs">
+            <button class="prev-tab on" id="prevt-json" onclick="switchPrevTab('json',this)">{ } JSON</button>
+            <button class="prev-tab" id="prevt-sql" onclick="switchPrevTab('sql',this)">🗄 SQL</button>
+          </div>
+          <div class="prev-panel on" id="prevp-json">
+            {% include 'components/json_viewer.html' %}
+          </div>
+          <div class="prev-panel" id="prevp-sql">
+            {% include 'components/sql_viewer.html' %}
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab: Logs ──────────────────────────────────────────── -->
+      <div class="ws-panel" id="panel-logs">
+        {% include 'components/logs_panel.html' %}
+      </div>
+
+      <!-- ── Tab: Chat ──────────────────────────────────────────── -->
+      <div class="ws-panel" id="panel-chat">
+        <div class="chat-wrap">
+          <div class="chat-header">
+            <span>💬</span>
+            AI Assistant
+            <span class="badge badge-purple" style="margin-left:4px">LLaMA 3.1 8B</span>
+          </div>
+          <div class="chat-box" id="chatBox">
+            <div class="msg msg-ai">
+              👋 Hi! I'm your matrimonial data assistant. Upload and process a file, then ask me anything about the extracted profiles — summaries, filtering, SQL queries, match analysis, and more.
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <textarea class="chat-input" id="chatInput" placeholder="Ask about the profiles…" rows="1"
+                      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
+            <button class="btn btn-primary btn-sm" id="chatSend" onclick="sendChat()" style="flex-shrink:0">
+              ↑ Send
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab: History ───────────────────────────────────────── -->
+      <div class="ws-panel" id="panel-history">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <span>📂</span>
+              <h3>Upload History</h3>
+            </div>
+            <button class="btn btn-ghost btn-xs" onclick="loadHistory()">↺ Refresh</button>
+          </div>
+          <div class="card-body">
+            <div class="history-list" id="historyList">
+              <div class="empty-state">
+                <span class="empty-state-icon">⏳</span>
+                <p class="empty-state-title">Loading…</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// ── State ───────────────────────────────────────────────────────────────
+let selectedFile   = null;
+let currentFileType = 'image';
+let currentJobId   = null;
+let pollInterval   = null;
+let allProfiles    = [];
+let currentView    = 'cards';
+let currentLogFilter = 'ALL';
+let lastLogCount   = 0;
+let logCounts      = { OK: 0, WARN: 0, ERROR: 0, STEP: 0, INFO: 0 };
+
+// ── File Type Selection ─────────────────────────────────────────────────
+function setType(type, el) {
+  currentFileType = type;
+  document.querySelectorAll('.type-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+
+  const maps = {
+    image: { accept:'image/*',    sub:'JPG, PNG, JPEG · max 50MB', icon:'🖼️' },
+    pdf:   { accept:'application/pdf,.pdf', sub:'PDF files · max 50MB', icon:'📄' },
+    doc:   { accept:'.docx,.doc,.txt',      sub:'DOCX, DOC, TXT · max 50MB', icon:'📝' },
+  };
+  const m = maps[type] || maps.image;
+  document.getElementById('fileInput').accept = m.accept;
+  document.getElementById('dzAccept').textContent = m.sub;
+  document.getElementById('dzIcon').textContent   = m.icon;
+  clearFile();
+}
+
+// ── File Handling ───────────────────────────────────────────────────────
+function handleFileSelect(file) {
+  if (!file) return;
+  selectedFile = file;
+  const icons = { 'application/pdf':'📄', 'image/jpeg':'🖼️', 'image/png':'🖼️', 'image/jpg':'🖼️' };
+  const icon = Object.entries(icons).find(([k]) => file.type.includes(k.split('/')[1]))?.[1] || '📝';
+  document.getElementById('fileInfo').classList.add('on');
+  document.getElementById('fileName').textContent  = file.name;
+  document.getElementById('fileSize').textContent  = formatSize(file.size);
+  document.getElementById('fileTypeIcon').textContent = icon;
+  document.getElementById('uploadBtn').disabled = false;
+  hideError();
+
+  if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const prev = document.getElementById('previewWrap');
+      prev.textContent = e.target.result.slice(0, 300) + (e.target.result.length > 300 ? '…' : '');
+      prev.classList.add('on');
+    };
+    reader.readAsText(file);
+  } else {
+    document.getElementById('previewWrap').classList.remove('on');
+  }
+}
+
+function clearFile() {
+  selectedFile = null;
+  document.getElementById('fileInfo').classList.remove('on');
+  document.getElementById('previewWrap').classList.remove('on');
+  document.getElementById('fileInput').value = '';
+  document.getElementById('uploadBtn').disabled = true;
+  hideError();
+}
+
+// Drag & drop
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('over');
+  const f = e.dataTransfer?.files?.[0];
+  if (f) handleFileSelect(f);
+});
+
+// ── Upload ──────────────────────────────────────────────────────────────
+async function startUpload() {
+  if (!selectedFile) return showError('Please select a file first.');
+
+  // Get api key - prefer from config, fall back to input field
+  let apiKey = document.getElementById('apiKey').value.trim();
+  // If key field is hidden and empty, the server uses .env key
+  const model = document.getElementById('modelSel').value;
+  const delay = document.getElementById('delayRange').value;
+
+  const fd = new FormData();
+  fd.append('file', selectedFile);
+  if (apiKey) fd.append('api_key', apiKey);
+  fd.append('model', model);
+  fd.append('request_delay', delay);
+
+  setUploadBtnLoading(true);
+  document.getElementById('logBox').innerHTML = '';
+  document.getElementById('logsEmpty').style.display = 'none';
+  document.getElementById('statusCard').classList.add('on');
+  document.getElementById('statusFile').textContent = selectedFile.name;
+  document.getElementById('statusSpinner').style.display = 'inline-block';
+  document.getElementById('statusIconStatic').style.display = 'none';
+  switchTab('logs');
+
+  try {
+    const res  = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF },
+      body: fd,
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(data.error || 'Upload failed');
+      setUploadBtnLoading(false);
+      return;
+    }
+
+    currentJobId = data.job_id;
+    lastLogCount = 0;
+    logCounts    = { OK: 0, WARN: 0, ERROR: 0, STEP: 0, INFO: 0 };
+    addLogEntry({ level:'STEP', msg:`Job started: ${data.job_id} [${data.file_type}]`, time: now() });
+    pollInterval = setInterval(pollStatus, 2000);
+
+  } catch (err) {
+    showError('Network error: ' + err.message);
+    setUploadBtnLoading(false);
+  }
+}
+
+function setUploadBtnLoading(loading) {
+  const btn = document.getElementById('uploadBtn');
+  btn.disabled = loading;
+  document.getElementById('uploadBtnIcon').textContent = loading ? '⏳' : '⚡';
+  document.getElementById('uploadBtnText').textContent = loading ? 'Processing…' : 'Process File';
+}
+
+// ── Polling ─────────────────────────────────────────────────────────────
+async function pollStatus() {
+  if (!currentJobId) return;
+  try {
+    const res = await fetch(`/api/status/${currentJobId}`);
+    const job = await res.json();
+    if (!res.ok) return;
+    updateStatus(job);
+    if (['done','failed'].includes(job.status)) {
+      clearInterval(pollInterval);
+      pollInterval = null;
+      setUploadBtnLoading(false);
+      document.getElementById('statusSpinner').style.display = 'none';
+      document.getElementById('statusIconStatic').style.display = 'inline';
+      if (job.status === 'done') onJobDone(job);
+      else showToast('Job failed. Check logs for details.', 'error');
+    }
+  } catch { /* retry */ }
+}
+
+function updateStatus(job) {
+  const badge = document.getElementById('statusBadge');
+  badge.className  = `status-badge status-${job.status}`;
+  badge.textContent = job.status;
+
+  const total = job.total_pages || 0;
+  const done  = job.processed || 0;
+  const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  document.getElementById('progBar').style.width       = pct + '%';
+  document.getElementById('statPages').textContent     = `${done}/${total}`;
+  document.getElementById('statProfiles').textContent  = job.success || 0;
+  document.getElementById('statPct').textContent       = pct + '%';
+  document.getElementById('statModel').textContent     = (job.current_model || '—').replace('-versatile','').replace('-instant','');
+  document.getElementById('modelBadge').textContent    = '⚡ ' + (job.current_model || '—').split('-').slice(0,3).join('-');
+  document.getElementById('headerModelBadge').textContent = (job.current_model || '').split('-').slice(0,3).join('-');
+
+  const pauseBox = document.getElementById('pauseBox');
+  if (job.pause_reason) {
+    pauseBox.classList.add('on');
+    document.getElementById('pauseReason').textContent = job.pause_reason;
+  } else {
+    pauseBox.classList.remove('on');
+  }
+
+  if (job.logs) renderLogs(job.logs);
+}
+
+// ── Job Done ────────────────────────────────────────────────────────────
+function onJobDone(job) {
+  allProfiles = job.profiles || [];
+  const n = allProfiles.length;
+
+  // Update tab count
+  document.getElementById('profileCount').textContent = n;
+
+  // Enable export buttons
+  document.getElementById('exportCount').textContent = `${n} profile${n !== 1 ? 's' : ''} ready`;
+  ['sql','csv','excel','json'].forEach(f => {
+    document.getElementById('exp-' + f).disabled = n === 0;
+  });
+
+  // Update SQL table name badge
+  document.getElementById('sqlTableName').textContent = document.getElementById('tableInput').value || 'register';
+
+  // Render cards
+  renderProfiles(allProfiles);
+
+  // Build Excel view
+  buildExcelViewer(allProfiles);
+
+  // Build JSON/SQL previews
+  buildJSONPreview(allProfiles);
+  buildSQLPreview(allProfiles);
+
+  // Switch to results tab
+  switchTab('results');
+
+  showToast(`✓ Extracted ${n} profile${n !== 1 ? 's' : ''} successfully!`, 'success', 4500);
+}
+
+// ── Profiles (Cards) ────────────────────────────────────────────────────
+function renderProfiles(profiles) {
+  const grid  = document.getElementById('profilesGrid');
+  const empty = document.getElementById('profilesEmpty');
+  grid.innerHTML = '';
+  if (!profiles.length) { empty.style.display = 'flex'; return; }
+  empty.style.display = 'none';
+  document.getElementById('profileCountBadge').textContent = profiles.length;
+
+  const KEY_SHOW = ['Age','Gender','Education','Occupation','City','State','Caste','Religion'];
+  profiles.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'profile-card';
+    card.dataset.idx = i;
+    const fields = KEY_SHOW.filter(k => p[k])
+      .map(k => `<span class="pc-field"><span>${k}:</span> ${p[k]}</span>`).join('');
+    card.innerHTML = `
+      <div class="pc-avatar">${p.Gender === 'Female' || p.Gender === 'F' ? '👩' : '👨'}</div>
+      <div class="pc-name">${p.Name || 'Unknown'}</div>
+      <div class="pc-sub">${p.Mobile || ''} ${p.DOB ? '· ' + p.DOB : ''}</div>
+      <div class="pc-fields">${fields || '<span class="pc-field" style="color:var(--muted)">No details extracted</span>'}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ── Profile search / filter ──────────────────────────────────────────────
+function filterProfiles(q) {
+  const query = q.toLowerCase().trim();
+  if (!query) { renderProfiles(allProfiles); return; }
+  const filtered = allProfiles.filter(p =>
+    Object.values(p).some(v => v && String(v).toLowerCase().includes(query))
+  );
+  renderProfiles(filtered);
+}
+
+// ── Result view toggle (cards / table) ──────────────────────────────────
+function setResultView(view, btn) {
+  currentView = view;
+  document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  if (view === 'cards') {
+    document.getElementById('profilesGridWrap').style.display = '';
+    document.getElementById('profilesTableWrap').style.display = 'none';
+  } else {
+    document.getElementById('profilesGridWrap').style.display = 'none';
+    document.getElementById('profilesTableWrap').style.display = '';
+    buildProfilesTable(allProfiles);
+  }
+}
+
+function buildProfilesTable(profiles) {
+  if (!profiles.length) return;
+  const cols = Object.keys(profiles[0]);
+  const head = document.getElementById('profilesTableHead');
+  const body = document.getElementById('profilesTableBody');
+
+  head.innerHTML = `<tr><th class="td-idx">#</th>${cols.map(c => `<th>${c}</th>`).join('')}</tr>`;
+  body.innerHTML = profiles.map((p, i) =>
+    `<tr><td class="td-idx">${i+1}</td>${cols.map(c =>
+      `<td class="${!p[c] ? 'td-null' : ''}" title="${p[c] || ''}">${p[c] ?? '<em>—</em>'}</td>`
+    ).join('')}</tr>`
+  ).join('');
+}
+
+// ── Excel Viewer ─────────────────────────────────────────────────────────
+let excelAllRows = [];
+let excelVisibleCols = new Set();
+let excelSortCol = null;
+let excelSortDir = 1;
+
+function buildExcelViewer(profiles) {
+  if (!profiles.length) return;
+  excelAllRows = profiles;
+  const cols = Object.keys(profiles[0]);
+  excelVisibleCols = new Set(cols);
+
+  // Col filter chips
+  const filtersDiv = document.getElementById('colFilters');
+  filtersDiv.innerHTML = cols.map(c =>
+    `<span class="col-chip active" onclick="toggleExcelCol('${c}',this)" data-col="${c}">${c}</span>`
+  ).join('');
+
+  document.getElementById('excelRowCount').textContent = `${profiles.length} rows`;
+  document.getElementById('excelTotalCount').textContent = profiles.length;
+  document.getElementById('excelColCount').textContent = cols.length;
+
+  renderExcelTable(profiles, cols);
+  document.getElementById('excelViewer').style.display = 'flex';
+  document.getElementById('excelEmpty').style.display = 'none';
+}
+
+function renderExcelTable(rows, cols) {
+  if (!cols) cols = [...excelVisibleCols];
+  const thead = document.getElementById('excelHead');
+  const tbody = document.getElementById('excelBody');
+
+  thead.innerHTML = `<tr>
+    <th class="row-idx-th"></th>
+    ${cols.map(c => `<th onclick="sortExcel('${c}',this)" id="exc-th-${c}">${c}</th>`).join('')}
+  </tr>`;
+
+  tbody.innerHTML = rows.map((row, i) =>
+    `<tr><td class="row-idx">${i+1}</td>${cols.map(c => {
+      const v = row[c];
+      if (!v) return `<td class="cell-null">—</td>`;
+      const isNum = !isNaN(v) && v !== '';
+      const long  = String(v).length > 24;
+      return `<td class="${isNum ? 'cell-num' : ''} ${long ? 'cell-long' : ''}" title="${v}">${String(v).slice(0,30)}${long ? '…' : ''}</td>`;
+    }).join('')}</tr>`
+  ).join('');
+
+  document.getElementById('excelVisibleCount').textContent = rows.length;
+}
+
+function toggleExcelCol(col, el) {
+  el.classList.toggle('active');
+  if (excelVisibleCols.has(col)) excelVisibleCols.delete(col);
+  else excelVisibleCols.add(col);
+  renderExcelTable(excelAllRows, [...excelVisibleCols]);
+}
+
+function filterExcelRows(q) {
+  const query = q.toLowerCase().trim();
+  const rows = !query ? excelAllRows :
+    excelAllRows.filter(r => Object.values(r).some(v => v && String(v).toLowerCase().includes(query)));
+  renderExcelTable(rows, [...excelVisibleCols]);
+}
+
+function sortExcel(col, th) {
+  if (excelSortCol === col) excelSortDir *= -1;
+  else { excelSortCol = col; excelSortDir = 1; }
+  document.querySelectorAll('#excelHead th').forEach(t => t.className = t.className.replace(/sorted-(asc|desc)/g,''));
+  th.className += excelSortDir === 1 ? ' sorted-asc' : ' sorted-desc';
+  const sorted = [...excelAllRows].sort((a, b) => {
+    const av = a[col] ?? ''; const bv = b[col] ?? '';
+    if (!isNaN(av) && !isNaN(bv)) return (parseFloat(av) - parseFloat(bv)) * excelSortDir;
+    return String(av).localeCompare(String(bv)) * excelSortDir;
+  });
+  renderExcelTable(sorted, [...excelVisibleCols]);
+}
+
+function resetExcelView() {
+  excelVisibleCols = new Set(Object.keys(excelAllRows[0] || {}));
+  document.querySelectorAll('.col-chip').forEach(c => c.classList.add('active'));
+  document.getElementById('excelFilter').value = '';
+  renderExcelTable(excelAllRows, [...excelVisibleCols]);
+}
+
+// ── JSON Preview ─────────────────────────────────────────────────────────
+function buildJSONPreview(profiles) {
+  if (!profiles.length) return;
+  const json = JSON.stringify(profiles, null, 2);
+  document.getElementById('jsonPre').textContent = json;
+  document.getElementById('jsonRecordCount').textContent = `${profiles.length} records`;
+  document.getElementById('jsonViewerWrap').style.display = 'block';
+}
+
+function copyJSON() {
+  const txt = document.getElementById('jsonPre').textContent;
+  navigator.clipboard.writeText(txt).then(() => showToast('JSON copied to clipboard', 'success'));
+}
+
+// ── SQL Preview ───────────────────────────────────────────────────────────
+function buildSQLPreview(profiles) {
+  if (!profiles.length) return;
+  const table = document.getElementById('tableInput').value || 'register';
+  const cols  = Object.keys(profiles[0]);
+  const lines = profiles.map((p, i) => {
+    const vals = cols.map(c => {
+      const v = p[c];
+      if (v === null || v === undefined || v === '') return 'NULL';
+      return `'${String(v).replace(/'/g,"''")}'`;
+    });
+    return `INSERT INTO \`${table}\` (${cols.map(c=>`\`${c}\``).join(', ')}) VALUES (${vals.join(', ')});`;
+  });
+  const sql = `-- Generated by Matrimony AI Agent\n-- Table: ${table}\n-- Records: ${profiles.length}\n\n${lines.join('\n')}`;
+  document.getElementById('sqlPre').textContent = sql;
+  document.getElementById('sqlRecordCount').textContent = `${profiles.length} inserts`;
+  document.getElementById('sqlViewerWrap').style.display = 'block';
+}
+
+function copySQL() {
+  const txt = document.getElementById('sqlPre').textContent;
+  navigator.clipboard.writeText(txt).then(() => showToast('SQL copied to clipboard', 'success'));
+}
+
+// ── Export ───────────────────────────────────────────────────────────────
+async function exportData(fmt) {
+  if (!currentJobId) return showToast('No job to export', 'warn');
+  const table = document.getElementById('tableInput').value.trim() || 'register';
+  try {
+    const res = await fetchJSON(`/api/export/${currentJobId}`, {
+      method: 'POST',
+      body: JSON.stringify({ format: fmt, table }),
+    });
+    if (!res.ok) {
+      const e = await res.json();
+      return showToast(e.error || 'Export failed', 'error');
+    }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `profiles.${fmt === 'excel' ? 'xlsx' : fmt}`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`${fmt.toUpperCase()} downloaded`, 'success');
+  } catch (err) {
+    showToast('Export failed: ' + err.message, 'error');
+  }
+}
+
+function exportExcel() { exportData('excel'); }
+
+// ── Logs ─────────────────────────────────────────────────────────────────
+function renderLogs(logs) {
+  const newLogs = logs.slice(lastLogCount);
+  const box = document.getElementById('logBox');
+  const empty = document.getElementById('logsEmpty');
+  if (newLogs.length && empty) empty.style.display = 'none';
+
+  newLogs.forEach(l => addLogEntry(l));
+  lastLogCount = logs.length;
+
+  document.getElementById('logTotalCount').textContent = `${lastLogCount} entries`;
+  document.getElementById('logCount').textContent = lastLogCount;
+}
+
+function addLogEntry(l) {
+  const box = document.getElementById('logBox');
+  const entry = document.createElement('div');
+  const hidden = currentLogFilter !== 'ALL' && currentLogFilter !== l.level;
+  entry.className = `log-entry log-${l.level}${hidden ? ' log-hidden' : ''}`;
+  entry.innerHTML = `<span class="log-time">[${l.time}]</span><span class="log-level">${l.level}</span><span class="log-msg">${l.msg}</span>`;
+  box.appendChild(entry);
+
+  logCounts[l.level] = (logCounts[l.level] || 0) + 1;
+  ['OK','WARN','ERROR','STEP'].forEach(k => {
+    const el = document.getElementById('lc' + k);
+    if (el) el.textContent = logCounts[k] || 0;
+  });
+  document.getElementById('logTimestamp').textContent = l.time || '';
+
+  if (document.getElementById('logAutoScroll')?.checked) {
+    box.scrollTop = box.scrollHeight;
+  }
+}
+
+function setLogFilter(level, btn) {
+  currentLogFilter = level;
+  document.querySelectorAll('.log-filter-btn').forEach(b => {
+    b.className = 'log-filter-btn';
+  });
+  btn.className = `log-filter-btn active-${level}`;
+  document.querySelectorAll('.log-entry').forEach(e => {
+    const lvl = [...e.classList].find(c => c.startsWith('log-') && c !== 'log-entry')?.replace('log-','');
+    e.classList.toggle('log-hidden', level !== 'ALL' && lvl !== level);
+  });
+}
+
+function clearLogs() {
+  document.getElementById('logBox').innerHTML = '';
+  document.getElementById('logsEmpty').style.display = 'flex';
+  lastLogCount = 0;
+  logCounts = { OK: 0, WARN: 0, ERROR: 0, STEP: 0, INFO: 0 };
+  document.getElementById('logTotalCount').textContent = '0 entries';
+}
+
+function downloadLogs() {
+  const entries = [...document.querySelectorAll('.log-entry')].map(e => e.textContent).join('\n');
+  const blob = new Blob([entries], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'processing-logs.txt';
+  a.click();
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg   = input.value.trim();
+  if (!msg) return;
+
+  appendMsg('user', msg);
+  input.value = '';
+  document.getElementById('chatSend').disabled = true;
+  const thinking = appendMsg('ai', '⏳ Thinking…');
+
+  try {
+    const res  = await fetchJSON('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({
+        job_id: currentJobId,
+        message: msg,
+        api_key: document.getElementById('apiKey').value.trim(),
+      }),
+    });
+    const data = await res.json();
+    thinking.textContent = data.reply || data.error || 'No response';
+  } catch (e) {
+    thinking.textContent = '⚠️ Network error';
+  }
+  document.getElementById('chatSend').disabled = false;
+}
+
+function appendMsg(role, text) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.className = `msg msg-${role}`;
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+// ── History ───────────────────────────────────────────────────────────────
+async function loadHistory() {
+  const list = document.getElementById('historyList');
+  list.innerHTML = '<div class="empty-state"><span class="empty-state-icon">⏳</span><p class="empty-state-title">Loading…</p></div>';
+  try {
+    const res  = await fetch('/api/uploads');
+    const data = await res.json();
+    if (!data.length) {
+      list.innerHTML = '<div class="empty-state"><span class="empty-state-icon">📂</span><p class="empty-state-title">No uploads yet</p><p class="empty-state-sub">Process your first file to see history here</p></div>';
+      return;
+    }
+    const icons = { pdf:'📄', docx:'📝', doc:'📝', txt:'📋', image:'🖼️' };
+    list.innerHTML = data.map(u => `
+      <div class="hist-item">
+        <span class="hist-icon">${icons[u.file_type] || '📄'}</span>
+        <div class="hist-meta">
+          <div class="hist-name">${u.original_filename}</div>
+          <div class="hist-detail">${u.file_type.toUpperCase()} · ${formatSize(u.file_size_bytes||0)} · ${u.profiles_count} profiles · ${fmtDate(u.created_at)}</div>
+        </div>
+        <div class="hist-actions">
+          <span class="status-badge status-${u.status}">${u.status}</span>
+        </div>
+      </div>`).join('');
+  } catch {
+    list.innerHTML = '<div class="empty-state"><span class="empty-state-icon">⚠️</span><p class="empty-state-title">Failed to load history</p></div>';
+  }
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.ws-tab').forEach(t => t.classList.toggle('on', t.id === 'tab-' + name));
+  document.querySelectorAll('.ws-panel').forEach(p => p.classList.toggle('on', p.id === 'panel-' + name));
+  if (name === 'history') loadHistory();
+}
+
+function switchPrevTab(name, el) {
+  document.querySelectorAll('.prev-tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelectorAll('.prev-panel').forEach(p => p.classList.toggle('on', p.id === 'prevp-' + name));
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('sidebarError');
+  el.textContent = '⚠ ' + msg;
+  el.classList.add('on');
+  showToast(msg, 'error');
+}
+function hideError() {
+  document.getElementById('sidebarError').classList.remove('on');
+}
+
+function updateModelBadge() {
+  const v = document.getElementById('modelSel').value;
+  const short = v.split('-').slice(0,3).join('-');
+  document.getElementById('currentModelBadge').textContent = short;
+  document.getElementById('headerModelBadge').textContent  = short;
+  document.getElementById('modelBadge').textContent        = '⚡ ' + short;
+}
+
+function toggleApiKeyVisibility() {
+  const inp = document.getElementById('apiKey');
+  const btn = document.getElementById('pwToggleBtn');
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+function now() { return new Date().toTimeString().slice(0,8); }
+
+// ── Init ────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  loadHistory();
+  updateModelBadge();
+});
+</script>
+{% endblock %}

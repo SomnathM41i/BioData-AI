@@ -1,0 +1,104 @@
+<style>
+/* ── SQL Viewer Component ───────────────────────────────────────────── */
+.sql-viewer-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.sql-viewer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--surf2);
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.sql-viewer-title {
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text2);
+}
+.sql-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.sql-pre {
+  margin: 0;
+  padding: 16px;
+  background: var(--bg);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.8;
+  overflow: auto;
+  max-height: 480px;
+  color: var(--text);
+  white-space: pre;
+}
+/* SQL Syntax highlighting */
+.sql-kw     { color: #89ddff; font-weight: 700; }
+.sql-fn     { color: #82aaff; }
+.sql-str    { color: #c3e88d; }
+.sql-num    { color: #f78c6c; }
+.sql-cmt    { color: var(--muted); font-style: italic; }
+.sql-tbl    { color: var(--accent); }
+.sql-col    { color: #c792ea; }
+.sql-punc   { color: var(--text2); }
+
+/* Line numbers */
+.sql-line {
+  display: block;
+  position: relative;
+  padding-left: 44px;
+  min-height: 1.8em;
+}
+.sql-line::before {
+  content: attr(data-line);
+  position: absolute;
+  left: 0;
+  width: 36px;
+  text-align: right;
+  color: var(--muted);
+  opacity: .4;
+  user-select: none;
+  padding-right: 8px;
+  font-size: 10px;
+}
+
+/* Table name badge */
+.sql-table-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(240,165,0,.1);
+  border: 1px solid rgba(240,165,0,.3);
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+}
+</style>
+
+<div class="sql-viewer-wrap" id="sqlViewerWrap" style="display:none">
+  <div class="sql-viewer-toolbar">
+    <div class="sql-viewer-title">
+      <span>🗄</span>
+      SQL Output
+      <span class="badge badge-amber" id="sqlRecordCount">0 inserts</span>
+    </div>
+    <div class="sql-actions">
+      <div class="sql-table-badge" id="sqlTableBadge">
+        <span>TABLE:</span>
+        <span id="sqlTableName">register</span>
+      </div>
+      <button class="btn btn-ghost btn-xs" onclick="copySQL()" id="copySqlBtn">⧉ Copy</button>
+      <button class="btn btn-secondary btn-xs" onclick="exportData('sql')">⬇ Download</button>
+    </div>
+  </div>
+  <pre class="sql-pre" id="sqlPre">-- No data yet. Process a file to generate SQL.</pre>
+</div>

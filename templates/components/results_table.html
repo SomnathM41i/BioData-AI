@@ -1,0 +1,244 @@
+<style>
+/* ── Results Table Component ─────────────────────────────────────────── */
+
+/* Profile cards grid */
+.profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.profile-card {
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  transition: all var(--transition);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.profile-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.profile-card:hover {
+  border-color: rgba(240,165,0,.3);
+  background: rgba(240,165,0,.03);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+.profile-card:hover::before { opacity: 1; }
+
+.pc-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--surf3), var(--surf4));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+.pc-name {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 3px;
+  color: var(--text);
+}
+.pc-sub {
+  font-size: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 10px;
+}
+.pc-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.pc-field {
+  background: var(--surf3);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 10px;
+  color: var(--text2);
+  font-family: var(--mono);
+}
+.pc-field span:first-child { color: var(--muted); }
+
+/* Table view (for Excel viewer) */
+.data-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  font-family: var(--mono);
+}
+.data-table th {
+  background: var(--surf3);
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.data-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+.data-table tr:hover td { background: rgba(240,165,0,.03); }
+.data-table tr:last-child td { border-bottom: none; }
+.td-null { color: var(--muted); font-style: italic; }
+.td-idx {
+  color: var(--muted);
+  font-size: 9px;
+  min-width: 32px;
+  text-align: center;
+}
+
+/* Results header bar */
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.results-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.results-count-badge {
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.results-count-badge strong { color: var(--accent); }
+
+.view-toggle {
+  display: flex;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  gap: 0;
+}
+.view-toggle-btn {
+  padding: 5px 12px;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: all var(--transition);
+}
+.view-toggle-btn.active {
+  background: var(--surf3);
+  color: var(--text);
+}
+.view-toggle-btn:hover:not(.active) { color: var(--text2); }
+
+/* Search bar */
+.results-search {
+  position: relative;
+  flex: 1;
+  max-width: 300px;
+}
+.results-search input {
+  width: 100%;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 12px 7px 32px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition);
+}
+.results-search input:focus { border-color: rgba(240,165,0,.4); }
+.results-search input::placeholder { color: var(--muted); }
+.results-search-ico {
+  position: absolute;
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  pointer-events: none;
+  color: var(--muted);
+}
+</style>
+
+<div id="results-component">
+  <!-- Results header -->
+  <div class="results-header" id="resultsHeader">
+    <div class="results-meta">
+      <div class="results-count-badge">
+        <span>👤</span>
+        <span><strong id="profileCountBadge">0</strong> profiles extracted</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="results-search">
+        <span class="results-search-ico">🔍</span>
+        <input type="text" placeholder="Search profiles…" id="profileSearch" oninput="filterProfiles(this.value)">
+      </div>
+      <div class="view-toggle">
+        <button class="view-toggle-btn active" onclick="setResultView('cards',this)" id="viewCards">⊞ Cards</button>
+        <button class="view-toggle-btn" onclick="setResultView('table',this)" id="viewTable">⊟ Table</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards view -->
+  <div id="profilesGridWrap">
+    <div class="profiles-grid" id="profilesGrid"></div>
+    <div class="empty-state" id="profilesEmpty">
+      <span class="empty-state-icon">💍</span>
+      <p class="empty-state-title">No profiles extracted yet</p>
+      <p class="empty-state-sub">Upload a matrimonial file and click Process to begin extraction</p>
+    </div>
+  </div>
+
+  <!-- Table view -->
+  <div id="profilesTableWrap" style="display:none">
+    <div class="data-table-wrap" style="max-height:560px;overflow-y:auto">
+      <table class="data-table" id="profilesTable">
+        <thead id="profilesTableHead"></thead>
+        <tbody id="profilesTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>

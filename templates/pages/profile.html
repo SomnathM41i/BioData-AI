@@ -1,0 +1,535 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Profile — Matrimony AI Agent{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ── Profile page layout ──────────────────────────────────────────────── */
+.profile-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Page heading */
+.page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.page-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.page-title span { color: var(--accent); }
+.page-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-family: var(--mono);
+}
+
+/* Two-column layout */
+.profile-cols {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 800px) {
+  .profile-cols { grid-template-columns: 1fr; }
+}
+
+/* ── User card ────────────────────────────────────────────────────────── */
+.user-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.user-card-banner {
+  height: 72px;
+  background: linear-gradient(135deg, rgba(240,165,0,.25), rgba(224,92,0,.15));
+  position: relative;
+}
+.user-card-avatar-wrap {
+  padding: 0 20px;
+  margin-top: -32px;
+  position: relative;
+  z-index: 2;
+}
+.user-card-avatar {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  border: 3px solid var(--surf);
+  object-fit: cover;
+  background: var(--surf3);
+  display: block;
+}
+.user-card-avatar-placeholder {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: 3px solid var(--surf);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 800; color: #000;
+}
+.user-card-body {
+  padding: 10px 20px 20px;
+}
+.user-card-name  { font-size: 16px; font-weight: 800; margin-bottom: 3px; }
+.user-card-email { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+
+.user-meta-row {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.user-meta-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--surf2);
+  border-radius: var(--radius);
+  font-size: 11px;
+}
+.user-meta-key { color: var(--muted); font-family: var(--mono); }
+.user-meta-val { font-weight: 700; font-family: var(--mono); color: var(--text2); font-size: 10px; text-align: right; }
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 16px;
+}
+.stat-box {
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  text-align: center;
+}
+.stat-box-val { font-size: 24px; font-weight: 800; color: var(--accent); }
+.stat-box-key { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+
+/* ── Upload history table ─────────────────────────────────────────────── */
+.upload-history-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.history-table-wrap {
+  overflow-x: auto;
+}
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.history-table th {
+  background: var(--surf2);
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.history-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.history-table tr:last-child td { border-bottom: none; }
+.history-table tr:hover td { background: rgba(240,165,0,.02); }
+.td-filename {
+  font-weight: 700;
+  color: var(--text);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.td-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  background: var(--surf3);
+  border-radius: 5px;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--text2);
+}
+.td-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* Filter bar */
+.history-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.hist-status-filter {
+  display: flex;
+  gap: 4px;
+}
+.hsf-btn {
+  padding: 4px 10px;
+  font-size: 10px;
+  font-family: var(--mono);
+  background: var(--surf3);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.hsf-btn.active { background: rgba(240,165,0,.1); border-color: rgba(240,165,0,.3); color: var(--accent); }
+
+/* Account settings */
+.settings-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row-left { display: flex; flex-direction: column; gap: 3px; }
+.settings-label { font-size: 12px; font-weight: 700; }
+.settings-desc  { font-size: 10px; color: var(--muted); }
+.danger-zone {
+  background: rgba(255,71,87,.04);
+  border-color: rgba(255,71,87,.2);
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="profile-wrap z1">
+
+  <!-- Page heading -->
+  <div class="page-heading">
+    <div>
+      <h1 class="page-title">👤 My <span>Profile</span></h1>
+      <p class="page-sub">Account details, upload history & settings</p>
+    </div>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary btn-sm">
+      ← Back to Dashboard
+    </a>
+  </div>
+
+  <div class="profile-cols">
+
+    <!-- ── Left column: user card ─────────────────────────────────────── -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- User card -->
+      <div class="user-card">
+        <div class="user-card-banner"></div>
+        <div class="user-card-avatar-wrap">
+          {% if current_user.profile_image %}
+            <img src="{{ current_user.profile_image }}" alt="{{ current_user.name }}" class="user-card-avatar">
+          {% else %}
+            <div class="user-card-avatar-placeholder">{{ current_user.name[0]|upper }}</div>
+          {% endif %}
+        </div>
+        <div class="user-card-body">
+          <div class="user-card-name">{{ current_user.name }}</div>
+          <div class="user-card-email">{{ current_user.email }}</div>
+
+          <div class="user-meta-row">
+            <div class="user-meta-item">
+              <span class="user-meta-key">Member since</span>
+              <span class="user-meta-val" id="memberSince">—</span>
+            </div>
+            <div class="user-meta-item">
+              <span class="user-meta-key">Last login</span>
+              <span class="user-meta-val" id="lastLogin">—</span>
+            </div>
+            <div class="user-meta-item">
+              <span class="user-meta-key">Account status</span>
+              <span class="badge badge-green"><span class="pulse"></span> Active</span>
+            </div>
+            <div class="user-meta-item">
+              <span class="user-meta-key">Auth method</span>
+              <span class="badge badge-blue">🔵 Google</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-left"><span>📊</span><h3>Stats</h3></div>
+        </div>
+        <div class="card-body">
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-box-val" id="statTotalUploads">—</div>
+              <div class="stat-box-key">Total Uploads</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-box-val" id="statDoneUploads">—</div>
+              <div class="stat-box-key">Completed</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-box-val" id="statTotalProfiles">—</div>
+              <div class="stat-box-key">Profiles Found</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-box-val" id="statSuccessRate">—</div>
+              <div class="stat-box-key">Success Rate</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account settings -->
+      <div class="settings-card">
+        <div class="card-header">
+          <div class="card-header-left"><span>⚙️</span><h3>Account</h3></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <span class="settings-label">Google Account</span>
+            <span class="settings-desc">{{ current_user.email }}</span>
+          </div>
+          <span class="badge badge-green">Connected</span>
+        </div>
+        <div class="settings-row danger-zone">
+          <div class="settings-row-left">
+            <span class="settings-label" style="color:var(--red)">Sign Out</span>
+            <span class="settings-desc">Sign out of your account</span>
+          </div>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost btn-xs" style="color:var(--red);border-color:rgba(255,71,87,.3)">
+            ↩ Sign Out
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Right column: history table ───────────────────────────────── -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <div class="upload-history-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <span>📂</span>
+            <h3>Upload History</h3>
+            <span class="badge badge-muted" id="histCountBadge">loading…</span>
+          </div>
+          <button class="btn btn-ghost btn-xs" onclick="loadProfileHistory()">↺ Refresh</button>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="history-filter-bar">
+          <div class="hist-status-filter" id="histStatusFilter">
+            <button class="hsf-btn active" onclick="filterHistStatus('all',this)">All</button>
+            <button class="hsf-btn" onclick="filterHistStatus('done',this)">Done</button>
+            <button class="hsf-btn" onclick="filterHistStatus('running',this)">Running</button>
+            <button class="hsf-btn" onclick="filterHistStatus('failed',this)">Failed</button>
+          </div>
+          <div style="flex:1"></div>
+          <div style="position:relative">
+            <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:11px;pointer-events:none">🔍</span>
+            <input type="text" class="input" style="padding:6px 10px 6px 26px;font-size:11px;width:200px"
+                   placeholder="Search files…" oninput="searchHistory(this.value)">
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th style="width:36px">#</th>
+                <th>File Name</th>
+                <th>Type</th>
+                <th>Size</th>
+                <th>Profiles</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="histTableBody">
+              <tr><td colspan="8" style="text-align:center;padding:28px;color:var(--muted)">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table footer -->
+        <div style="padding:10px 14px;border-top:1px solid var(--border);background:var(--surf2);display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--muted)">
+          <span id="histTableMeta">—</span>
+          <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary btn-xs">+ New Upload</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let allHistory = [];
+let currentHistFilter = 'all';
+
+async function loadProfileHistory() {
+  document.getElementById('histTableBody').innerHTML =
+    '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--muted)"><div class="spinner" style="display:inline-block;margin-right:8px"></div>Loading…</td></tr>';
+
+  try {
+    const res  = await fetch('/api/uploads');
+    const data = await res.json();
+    allHistory = data;
+
+    // Populate stats
+    const total    = data.length;
+    const done     = data.filter(u => u.status === 'done').length;
+    const profiles = data.reduce((acc, u) => acc + (u.profiles_count || 0), 0);
+    const rate     = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    document.getElementById('statTotalUploads').textContent  = total;
+    document.getElementById('statDoneUploads').textContent   = done;
+    document.getElementById('statTotalProfiles').textContent = profiles;
+    document.getElementById('statSuccessRate').textContent   = rate + '%';
+    document.getElementById('histCountBadge').textContent    = total + ' files';
+
+    renderHistTable(data);
+  } catch {
+    document.getElementById('histTableBody').innerHTML =
+      '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--red)">⚠ Failed to load history</td></tr>';
+  }
+}
+
+function renderHistTable(data) {
+  const tbody = document.getElementById('histTableBody');
+  const icons = { pdf:'📄', docx:'📝', doc:'📝', txt:'📋', image:'🖼️' };
+
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:36px;color:var(--muted)">No uploads found</td></tr>';
+    document.getElementById('histTableMeta').textContent = '0 results';
+    return;
+  }
+
+  tbody.innerHTML = data.map((u, i) => `
+    <tr>
+      <td style="color:var(--muted);font-size:10px;text-align:center">${i+1}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span>${icons[u.file_type] || '📄'}</span>
+          <span class="td-filename" title="${u.original_filename}">${u.original_filename}</span>
+        </div>
+      </td>
+      <td><span class="td-type-badge">${(u.file_type || '—').toUpperCase()}</span></td>
+      <td style="font-family:var(--mono);font-size:10px">${formatSize(u.file_size_bytes || 0)}</td>
+      <td>
+        <span style="font-weight:700;color:var(--accent)">${u.profiles_count || 0}</span>
+        <span style="color:var(--muted);font-size:10px"> profiles</span>
+      </td>
+      <td><span class="status-badge status-${u.status}">${u.status}</span></td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${fmtDate(u.created_at)}</td>
+      <td>
+        <div class="td-actions">
+          ${u.status === 'done' && u.job_id ? `
+            <button class="btn btn-ghost btn-xs" onclick="reExport('${u.job_id}','excel')" title="Export Excel">📊</button>
+            <button class="btn btn-ghost btn-xs" onclick="reExport('${u.job_id}','sql')"   title="Export SQL">🗄</button>
+            <button class="btn btn-ghost btn-xs" onclick="reExport('${u.job_id}','json')"  title="Export JSON">{ }</button>
+          ` : '<span style="color:var(--muted);font-size:10px">—</span>'}
+        </div>
+      </td>
+    </tr>`).join('');
+
+  document.getElementById('histTableMeta').textContent = `Showing ${data.length} of ${allHistory.length} uploads`;
+}
+
+function filterHistStatus(status, btn) {
+  currentHistFilter = status;
+  document.querySelectorAll('.hsf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyHistFilters();
+}
+
+function searchHistory(q) {
+  applyHistFilters(q);
+}
+
+function applyHistFilters(q = '') {
+  let filtered = allHistory;
+  if (currentHistFilter !== 'all') {
+    filtered = filtered.filter(u => u.status === currentHistFilter);
+  }
+  if (q.trim()) {
+    const query = q.toLowerCase();
+    filtered = filtered.filter(u => u.original_filename.toLowerCase().includes(query));
+  }
+  renderHistTable(filtered);
+}
+
+async function reExport(jobId, fmt) {
+  try {
+    const res = await fetchJSON(`/api/export/${jobId}`, {
+      method: 'POST',
+      body: JSON.stringify({ format: fmt, table: 'register' }),
+    });
+    if (!res.ok) {
+      const e = await res.json();
+      return showToast(e.error || 'Export failed', 'error');
+    }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `profiles.${fmt === 'excel' ? 'xlsx' : fmt}`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`${fmt.toUpperCase()} downloaded`, 'success');
+  } catch (err) {
+    showToast('Export failed: ' + err.message, 'error');
+  }
+}
+
+// Set user meta dates
+window.addEventListener('DOMContentLoaded', () => {
+  // Member since / last login from Flask template
+  const createdAt = "{{ current_user.created_at.isoformat() if current_user.created_at else '' }}";
+  const lastLogin = "{{ current_user.last_login.isoformat() if current_user.last_login else '' }}";
+  if (createdAt) document.getElementById('memberSince').textContent = fmtDate(createdAt);
+  if (lastLogin)  document.getElementById('lastLogin').textContent  = fmtDate(lastLogin);
+  loadProfileHistory();
+});
+</script>
+{% endblock %}

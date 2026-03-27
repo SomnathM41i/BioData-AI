@@ -1,0 +1,168 @@
+<style>
+/* ── Logs Panel Component ────────────────────────────────────────────── */
+.logs-panel {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.logs-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--surf2);
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+  flex-shrink: 0;
+}
+.logs-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.logs-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Log level filter chips */
+.log-level-filters {
+  display: flex;
+  gap: 4px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surf);
+  flex-shrink: 0;
+}
+.log-filter-btn {
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  font-family: var(--mono);
+  cursor: pointer;
+  background: var(--surf3);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  transition: all var(--transition);
+}
+.log-filter-btn.active-ALL  { background: rgba(107,107,128,.15); border-color: var(--muted); color: var(--text2); }
+.log-filter-btn.active-OK   { background: rgba(0,200,150,.12);  border-color: rgba(0,200,150,.3); color: var(--green); }
+.log-filter-btn.active-WARN { background: rgba(240,165,0,.12);  border-color: rgba(240,165,0,.3); color: var(--accent); }
+.log-filter-btn.active-ERROR{ background: rgba(255,71,87,.12);  border-color: rgba(255,71,87,.3); color: var(--red); }
+.log-filter-btn.active-STEP { background: rgba(79,142,247,.12); border-color: rgba(79,142,247,.3); color: var(--blue); }
+
+/* Log box */
+.log-box {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 280px;
+  max-height: 480px;
+}
+.log-entry {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.7;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background var(--transition);
+}
+.log-entry:hover { background: var(--surf2); }
+.log-time  { color: var(--muted); flex-shrink: 0; min-width: 68px; }
+.log-level { flex-shrink: 0; min-width: 44px; font-weight: 700; }
+.log-msg   { color: var(--text2); word-break: break-all; }
+
+/* Level colors */
+.log-entry.log-OK    .log-level { color: var(--green); }
+.log-entry.log-OK    .log-msg   { color: var(--green); opacity: .9; }
+.log-entry.log-WARN  .log-level { color: var(--accent); }
+.log-entry.log-WARN  .log-msg   { color: var(--accent); opacity: .85; }
+.log-entry.log-ERROR .log-level { color: var(--red); }
+.log-entry.log-ERROR .log-msg   { color: var(--red); opacity: .9; }
+.log-entry.log-STEP  .log-level { color: var(--blue); }
+.log-entry.log-STEP  .log-msg   { color: var(--blue); opacity: .8; }
+.log-entry.log-INFO  .log-level { color: var(--muted); }
+
+/* Hidden by filter */
+.log-entry.log-hidden { display: none; }
+
+/* Footer */
+.logs-footer {
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--surf2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
+  flex-shrink: 0;
+}
+.log-count-display { display: flex; gap: 12px; }
+.lc-item { display: flex; align-items: center; gap: 4px; }
+</style>
+
+<div class="logs-panel" id="logsPanel">
+  <!-- Toolbar -->
+  <div class="logs-toolbar">
+    <div class="logs-title">
+      <span>📋</span>
+      Processing Logs
+      <span class="badge badge-muted" id="logTotalCount">0 entries</span>
+    </div>
+    <div class="logs-actions">
+      <label style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);cursor:pointer">
+        <input type="checkbox" id="logAutoScroll" checked style="accent-color:var(--accent)">
+        Auto-scroll
+      </label>
+      <button class="btn btn-ghost btn-xs" onclick="clearLogs()">✕ Clear</button>
+      <button class="btn btn-secondary btn-xs" onclick="downloadLogs()">⬇ Download</button>
+    </div>
+  </div>
+
+  <!-- Level filters -->
+  <div class="log-level-filters">
+    <button class="log-filter-btn active-ALL" onclick="setLogFilter('ALL',this)" id="logf-ALL">All</button>
+    <button class="log-filter-btn" onclick="setLogFilter('STEP',this)" id="logf-STEP">Step</button>
+    <button class="log-filter-btn" onclick="setLogFilter('OK',this)" id="logf-OK">OK</button>
+    <button class="log-filter-btn" onclick="setLogFilter('WARN',this)" id="logf-WARN">Warn</button>
+    <button class="log-filter-btn" onclick="setLogFilter('ERROR',this)" id="logf-ERROR">Error</button>
+    <button class="log-filter-btn" onclick="setLogFilter('INFO',this)" id="logf-INFO">Info</button>
+  </div>
+
+  <!-- Log entries -->
+  <div class="log-box" id="logBox">
+    <div class="empty-state" id="logsEmpty" style="padding:24px">
+      <span class="empty-state-icon">📋</span>
+      <p class="empty-state-title">No logs yet</p>
+      <p class="empty-state-sub">Processing logs will appear here in real-time</p>
+    </div>
+  </div>
+
+  <!-- Footer counts -->
+  <div class="logs-footer">
+    <div class="log-count-display">
+      <span class="lc-item" style="color:var(--green)"><span>•</span> <span id="lcOK">0</span> OK</span>
+      <span class="lc-item" style="color:var(--accent)"><span>•</span> <span id="lcWARN">0</span> Warn</span>
+      <span class="lc-item" style="color:var(--red)"><span>•</span> <span id="lcERROR">0</span> Error</span>
+      <span class="lc-item" style="color:var(--blue)"><span>•</span> <span id="lcSTEP">0</span> Step</span>
+    </div>
+    <span id="logTimestamp">—</span>
+  </div>
+</div>

@@ -5,182 +5,96 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Matrimony AI Agent — Sign In</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,500;1,300&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0a0a0f;--surf:#111118;--surf2:#18181f;--surf3:#1e1e28;
-  --border:#2a2a3a;--accent:#f0a500;--accent2:#e05c00;
-  --green:#00c896;--red:#ff4757;--blue:#4f8ef7;--purple:#c792ea;
-  --text:#e8e8f0;--muted:#6b6b80;
-  --mono:'JetBrains Mono',monospace;--ui:'Syne',sans-serif;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{
-  background:var(--bg);color:var(--text);font-family:var(--ui);
-  min-height:100vh;display:flex;align-items:center;justify-content:center;
-  overflow:hidden;
-}
-
-/* Animated grid background */
-body::before{
-  content:'';position:fixed;inset:0;
-  background-image:
-    linear-gradient(rgba(240,165,0,.03) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(240,165,0,.03) 1px,transparent 1px);
-  background-size:56px 56px;pointer-events:none;
-  animation:gridMove 20s linear infinite;
-}
+:root{--bg:#0a0a0f;--surf:#111118;--surf2:#18181f;--surf3:#1e1e28;--border:#2a2a3a;--accent:#f0a500;--accent2:#e05c00;--green:#00c896;--blue:#4f8ef7;--text:#e8e8f0;--muted:#6b6b80;--mono:'JetBrains Mono',monospace;--ui:'Syne',sans-serif;--serif:'Fraunces',serif;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--ui);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(240,165,0,.022)1px,transparent 1px),linear-gradient(90deg,rgba(240,165,0,.022)1px,transparent 1px);background-size:56px 56px;animation:gridMove 22s linear infinite;pointer-events:none;}
 @keyframes gridMove{0%{background-position:0 0}100%{background-position:56px 56px}}
-
-/* Glow orbs */
-.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;opacity:.35;}
-.orb1{width:500px;height:500px;background:radial-gradient(circle,#f0a50022,transparent);top:-100px;right:-100px;}
-.orb2{width:400px;height:400px;background:radial-gradient(circle,#4f8ef722,transparent);bottom:-80px;left:-80px;}
-
-/* Card */
-.card{
-  position:relative;z-index:10;
-  width:min(480px,94vw);
-  background:var(--surf);border:1px solid var(--border);
-  border-radius:20px;padding:48px 40px;text-align:center;
-  box-shadow:0 24px 80px rgba(0,0,0,.6);
-}
-
-/* Logo */
-.logo{display:inline-flex;align-items:center;gap:12px;margin-bottom:36px;}
-.logo-icon{
-  width:44px;height:44px;border-radius:11px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  display:flex;align-items:center;justify-content:center;font-size:22px;
-  box-shadow:0 8px 24px rgba(240,165,0,.35);
-}
-.logo-text{font-size:18px;font-weight:800;letter-spacing:-.5px;}
-.logo-text span{color:var(--accent);}
-
-/* Headline */
-h1{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:10px;line-height:1.2;}
-h1 .grad{
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.subtitle{font-size:14px;color:var(--muted);margin-bottom:36px;line-height:1.6;}
-
-/* Divider */
-.divider{display:flex;align-items:center;gap:12px;margin:0 0 24px;color:var(--muted);font-size:11px;letter-spacing:1px;text-transform:uppercase;}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
-
-/* Google button */
-.btn-google{
-  display:flex;align-items:center;justify-content:center;gap:12px;
-  width:100%;padding:15px 20px;border-radius:12px;
-  background:var(--surf2);border:1px solid var(--border);
-  color:var(--text);font-family:var(--ui);font-size:15px;font-weight:700;
-  cursor:pointer;text-decoration:none;transition:all .25s;
-  letter-spacing:.2px;
-}
-.btn-google:hover{
-  border-color:var(--accent);background:rgba(240,165,0,.06);
-  transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3);
-}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;}
+.orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(240,165,0,.14),transparent);top:-150px;right:-120px;animation:orbFloat1 18s ease-in-out infinite;}
+.orb2{width:500px;height:500px;background:radial-gradient(circle,rgba(79,142,247,.1),transparent);bottom:-120px;left:-100px;animation:orbFloat2 24s ease-in-out infinite;}
+@keyframes orbFloat1{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,30px)}}
+@keyframes orbFloat2{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-40px)}}
+.page{position:relative;z-index:10;display:flex;align-items:center;justify-content:center;gap:64px;padding:24px;min-height:100vh;width:100%;}
+.hero{max-width:440px;display:flex;flex-direction:column;gap:28px;}
+.hero-logo{display:inline-flex;align-items:center;gap:12px;}
+.hero-logo-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 8px 28px rgba(240,165,0,.4);}
+.hero-logo-text{font-size:20px;font-weight:800;letter-spacing:-.5px;}
+.hero-logo-text span{color:var(--accent);}
+.hero-headline{font-size:40px;font-weight:800;line-height:1.1;letter-spacing:-1.5px;font-family:var(--serif);}
+.hero-headline em{font-style:italic;color:var(--accent);}
+.hero-sub{font-size:13px;color:var(--muted);line-height:1.7;}
+.feature-list{display:flex;flex-direction:column;gap:10px;}
+.feature-item{display:flex;align-items:center;gap:12px;padding:11px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;font-size:12px;transition:border-color .2s;}
+.feature-item:hover{border-color:rgba(240,165,0,.3);}
+.feature-icon{font-size:17px;flex-shrink:0;}
+.feature-text{color:var(--text);}
+.feature-text span{color:var(--muted);display:block;font-size:10px;font-family:var(--mono);margin-top:2px;}
+.sign-card{width:min(420px,94vw);background:var(--surf);border:1px solid var(--border);border-radius:20px;padding:40px 36px;box-shadow:0 24px 80px rgba(0,0,0,.7);display:flex;flex-direction:column;gap:24px;flex-shrink:0;}
+.sign-card-header{text-align:center;}
+.sign-title{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px;}
+.sign-sub{font-size:12px;color:var(--muted);line-height:1.6;}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:14px;background:var(--surf2);border:1px solid var(--border);border-radius:12px;font-family:var(--ui);font-size:13px;font-weight:700;color:var(--text);text-decoration:none;cursor:pointer;transition:all .2s;}
+.google-btn:hover{background:var(--surf3);border-color:rgba(255,255,255,.15);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.4);}
 .google-icon{width:20px;height:20px;flex-shrink:0;}
-
-/* Flash messages */
-.flash{
-  padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:20px;text-align:left;
-  display:flex;align-items:center;gap:8px;
-}
-.flash-error{background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);color:#ff6b7a;}
-.flash-info{background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.3);color:#7ab0ff;}
-
-/* Features list */
-.features{
-  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:36px;text-align:left;
-}
-.feature{
-  background:var(--surf2);border:1px solid var(--border);border-radius:10px;
-  padding:12px 14px;display:flex;align-items:flex-start;gap:9px;
-}
-.feature-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
-.feature-text{font-size:11px;color:var(--muted);line-height:1.5;}
-.feature-text strong{color:var(--text);font-size:12px;display:block;margin-bottom:2px;}
-
-/* Footer */
-.foot{margin-top:32px;font-size:11px;color:var(--muted);}
-.foot a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--border);}
+.flash-alert{padding:10px 14px;border-radius:10px;font-size:12px;border:1px solid;line-height:1.5;}
+.flash-error{background:rgba(255,71,87,.1);border-color:rgba(255,71,87,.3);color:#ff6b7a;}
+.flash-success{background:rgba(0,200,150,.1);border-color:rgba(0,200,150,.3);color:#00c896;}
+.flash-info{background:rgba(79,142,247,.1);border-color:rgba(79,142,247,.3);color:#7aabff;}
+.trust-row{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
+.trust-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-family:var(--mono);}
+.privacy-note{text-align:center;font-size:10px;color:var(--muted);line-height:1.6;font-family:var(--mono);}
+@media(max-width:900px){.hero{display:none;}.page{justify-content:center;}}
 </style>
 </head>
 <body>
 <div class="orb orb1"></div>
 <div class="orb orb2"></div>
-
-<div class="card">
-  <div class="logo">
-    <div class="logo-icon">💍</div>
-    <div class="logo-text">Matrimony<span>AI</span></div>
-  </div>
-
-  <h1>Extract profiles<br>with <span class="grad">AI precision</span></h1>
-  <p class="subtitle">
-    Upload matrimonial biodatas in PDF, DOCX, or image format.<br>
-    Get structured data extracted in seconds.
-  </p>
-
-  <!-- Flash messages from Flask -->
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% for category, message in messages %}
-      <div class="flash flash-{{ category }}">
-        {{ '⚠️' if category == 'error' else 'ℹ️' }} {{ message }}
-      </div>
-    {% endfor %}
-  {% endwith %}
-
-  <div class="divider">Sign in to continue</div>
-
-  <a href="{{ url_for('auth.google_login') }}" class="btn-google">
-    <!-- Google logo SVG -->
-    <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-    </svg>
-    Continue with Google
-  </a>
-
-  <div class="features">
-    <div class="feature">
-      <span class="feature-icon">🤖</span>
-      <div class="feature-text">
-        <strong>AI Extraction</strong>
-        Groq LLaMA 3.3 parses 40+ fields automatically
-      </div>
+<div class="page">
+  <div class="hero">
+    <div class="hero-logo">
+      <div class="hero-logo-icon">💍</div>
+      <span class="hero-logo-text">Matrimony<span>AI</span></span>
     </div>
-    <div class="feature">
-      <span class="feature-icon">📄</span>
-      <div class="feature-text">
-        <strong>Multi-Format</strong>
-        PDF, DOCX, Images (OCR), plain text
-      </div>
+    <div>
+      <h1 class="hero-headline">Extract profiles,<br><em>automatically.</em></h1>
+      <p class="hero-sub" style="margin-top:14px">Upload matrimonial documents — PDFs, images, or Word files — and let AI extract structured profiles in seconds. Export to Excel, JSON, or SQL.</p>
     </div>
-    <div class="feature">
-      <span class="feature-icon">📊</span>
-      <div class="feature-text">
-        <strong>Export Ready</strong>
-        SQL, CSV, Excel, JSON output
-      </div>
-    </div>
-    <div class="feature">
-      <span class="feature-icon">💬</span>
-      <div class="feature-text">
-        <strong>AI Chat</strong>
-        Query your extracted profiles naturally
-      </div>
+    <div class="feature-list">
+      <div class="feature-item"><span class="feature-icon">🖼️</span><div class="feature-text">Multi-format support<span>PDF, images (JPG/PNG), DOCX, TXT files</span></div></div>
+      <div class="feature-item"><span class="feature-icon">⚡</span><div class="feature-text">Powered by Groq + LLaMA 3.3<span>High-speed inference with model fallback</span></div></div>
+      <div class="feature-item"><span class="feature-icon">📊</span><div class="feature-text">Export anywhere<span>Excel, JSON, SQL, CSV — one click</span></div></div>
+      <div class="feature-item"><span class="feature-icon">🌐</span><div class="feature-text">Multilingual extraction<span>English, Hindi, Marathi — auto-translated</span></div></div>
     </div>
   </div>
-
-  <div class="foot">
-    By signing in you agree to our
-    <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+  <div class="sign-card">
+    <div class="sign-card-header">
+      <div style="font-size:36px;margin-bottom:12px">💍</div>
+      <div class="sign-title">Welcome back</div>
+      <div class="sign-sub">Sign in to access your dashboard and<br>start extracting matrimonial profiles.</div>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}{% for category, message in messages %}
+        <div class="flash-alert flash-{{ category }}">{{ message }}</div>
+      {% endfor %}{% endif %}
+    {% endwith %}
+    <a href="{{ url_for('auth.google_login') }}" class="google-btn">
+      <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Continue with Google
+    </a>
+    <div class="trust-row">
+      <div class="trust-item"><span>🔒</span> Secure OAuth</div>
+      <div class="trust-item"><span>⚡</span> Fast &amp; private</div>
+      <div class="trust-item"><span>🛡</span> No password needed</div>
+    </div>
+    <p class="privacy-note">By signing in, you agree to our terms of use.<br>Your data is processed locally and never shared.</p>
   </div>
 </div>
 </body>

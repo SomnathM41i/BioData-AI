@@ -1,0 +1,148 @@
+<style>
+/* ── Progress Bar Component ─────────────────────────────────────────── */
+.job-status-card {
+  display: none;
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 16px;
+  animation: slide-down .25s ease;
+}
+.job-status-card.on { display: block; }
+@keyframes slide-down { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+
+.job-status-header {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surf2);
+}
+.job-status-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.job-filename {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+.job-status-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Progress track */
+.progress-track {
+  height: 3px;
+  background: var(--surf3);
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  width: 0%;
+  transition: width .5s ease;
+  position: relative;
+  overflow: hidden;
+}
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+  animation: prog-shine 1.5s infinite;
+}
+@keyframes prog-shine { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+/* Stats row */
+.job-stats {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.job-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.job-stat-val  { font-size: 16px; font-weight: 800; color: var(--text); }
+.job-stat-key  { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+.stat-divider  { width: 1px; height: 28px; background: var(--border); }
+
+/* Pause alert */
+.pause-alert {
+  display: none;
+  margin: 0 16px 12px;
+  padding: 9px 12px;
+  background: rgba(240,165,0,.1);
+  border: 1px solid rgba(240,165,0,.3);
+  border-radius: var(--radius);
+  font-size: 11px;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pause-alert.on { display: flex; }
+</style>
+
+<div class="job-status-card" id="statusCard">
+  <div class="job-status-header">
+    <div class="job-status-left">
+      <div class="spinner" id="statusSpinner" style="display:none"></div>
+      <span id="statusIconStatic" style="font-size:16px">📄</span>
+      <span class="job-filename" id="statusFile">—</span>
+    </div>
+    <div class="job-status-right">
+      <span class="badge badge-muted" id="modelBadge">⚡ llama-3.3-70b</span>
+      <span class="status-badge status-pending" id="statusBadge">pending</span>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-track">
+    <div class="progress-bar" id="progBar"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="job-stats">
+    <div class="job-stat">
+      <span class="job-stat-val" id="statPages">0/0</span>
+      <span class="job-stat-key">Pages</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="job-stat">
+      <span class="job-stat-val text-green" id="statProfiles">0</span>
+      <span class="job-stat-key">Profiles</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="job-stat">
+      <span class="job-stat-val text-accent" id="statModel">—</span>
+      <span class="job-stat-key">Model</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="job-stat">
+      <span class="job-stat-val" id="statPct">0%</span>
+      <span class="job-stat-key">Progress</span>
+    </div>
+  </div>
+
+  <!-- Pause alert -->
+  <div class="pause-alert" id="pauseBox">
+    <span>⏸</span>
+    <span id="pauseReason">Rate limit hit — waiting…</span>
+  </div>
+</div>

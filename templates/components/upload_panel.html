@@ -1,0 +1,325 @@
+<style>
+/* ── Sidebar ─────────────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* File type selector */
+.type-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.type-card {
+  background: var(--surf2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.type-card:hover { border-color: rgba(240,165,0,.4); background: rgba(240,165,0,.04); }
+.type-card.active {
+  border-color: var(--accent);
+  background: rgba(240,165,0,.08);
+  box-shadow: 0 0 0 1px rgba(240,165,0,.15);
+}
+.type-card.active .type-icon { filter: drop-shadow(0 0 6px var(--accent)); }
+.type-icon  { font-size: 22px; line-height: 1; }
+.type-label { font-size: 9px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); }
+.type-card.active .type-label { color: var(--accent); }
+
+/* Drop zone */
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 28px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+}
+.dropzone:hover, .dropzone.over {
+  border-color: var(--accent);
+  background: rgba(240,165,0,.04);
+}
+.dropzone.over { transform: scale(1.01); }
+.dz-icon  { font-size: 28px; margin-bottom: 10px; display: block; }
+.dz-title { font-size: 12px; font-weight: 700; margin-bottom: 5px; }
+.dz-sub   { font-size: 10px; color: var(--muted); font-family: var(--mono); }
+.dz-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+
+/* File info */
+.file-info {
+  display: none;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  gap: 10px;
+  align-items: center;
+}
+.file-info.on { display: flex; }
+.file-info-icon { font-size: 22px; flex-shrink: 0; }
+.file-info-meta { flex: 1; min-width: 0; }
+.file-info-name {
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.file-info-size { font-size: 10px; color: var(--muted); font-family: var(--mono); }
+.file-remove {
+  padding: 4px 8px;
+  background: rgba(255,71,87,.1);
+  border: 1px solid rgba(255,71,87,.2);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--red);
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+.file-remove:hover { background: rgba(255,71,87,.2); }
+
+/* Text preview */
+.text-preview {
+  display: none;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  max-height: 80px;
+  overflow: hidden;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.text-preview.on { display: block; }
+
+/* Options */
+.option-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+.option-row-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.option-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.range-val {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  min-width: 30px;
+  text-align: right;
+}
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--surf3);
+  border-radius: 4px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(240,165,0,.4);
+}
+
+/* Process button */
+.process-btn-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+.process-btn-wrap .btn-primary {
+  width: 100%;
+  padding: 13px;
+  font-size: 13px;
+  letter-spacing: .5px;
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+}
+.process-btn-wrap .btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+  transform: translateX(-100%);
+  transition: transform .5s;
+}
+.process-btn-wrap .btn-primary:hover::before { transform: translateX(100%); }
+
+/* Error */
+.sidebar-error {
+  display: none;
+  padding: 10px 12px;
+  background: rgba(255,71,87,.1);
+  border: 1px solid rgba(255,71,87,.3);
+  border-radius: var(--radius);
+  font-size: 11px;
+  color: var(--red);
+  line-height: 1.5;
+}
+.sidebar-error.on { display: block; }
+
+/* API key reveal toggle */
+.input-pw-wrap { position: relative; }
+.input-pw-wrap .input { padding-right: 38px; }
+.pw-toggle {
+  position: absolute;
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 13px;
+  transition: color var(--transition);
+  padding: 2px;
+}
+.pw-toggle:hover { color: var(--text); }
+
+@media (max-width: 960px) {
+  .sidebar { width: 100%; }
+}
+</style>
+
+<aside class="sidebar z1">
+  <!-- File Type Selector -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-left">
+        <span>📂</span>
+        <h3>File Input</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="type-selector">
+        <div class="type-card active" onclick="setType('image',this)" id="type-image">
+          <span class="type-icon">🖼️</span>
+          <span class="type-label">Image</span>
+        </div>
+        <div class="type-card" onclick="setType('pdf',this)" id="type-pdf">
+          <span class="type-icon">📄</span>
+          <span class="type-label">PDF</span>
+        </div>
+        <div class="type-card" onclick="setType('doc',this)" id="type-doc">
+          <span class="type-icon">📝</span>
+          <span class="type-label">DOC</span>
+        </div>
+      </div>
+
+      <!-- Drop Zone -->
+      <div class="dropzone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <span class="dz-icon" id="dzIcon">🖼️</span>
+        <div class="dz-title">Drop file here</div>
+        <div class="dz-sub" id="dzAccept">JPG, PNG, JPEG · max 50MB</div>
+        <input type="file" id="fileInput" class="dz-input" accept="image/*"
+               onchange="handleFileSelect(this.files[0])" onclick="event.stopPropagation()">
+      </div>
+
+      <!-- File Info -->
+      <div class="file-info" id="fileInfo">
+        <span class="file-info-icon" id="fileTypeIcon">🖼️</span>
+        <div class="file-info-meta">
+          <div class="file-info-name" id="fileName">—</div>
+          <div class="file-info-size" id="fileSize">—</div>
+        </div>
+        <button class="file-remove" onclick="clearFile()">✕</button>
+      </div>
+
+      <!-- Text preview -->
+      <div class="text-preview" id="previewWrap"></div>
+    </div>
+  </div>
+
+  <!-- Model Settings -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-left">
+        <span>⚙️</span>
+        <h3>Processing Settings</h3>
+      </div>
+      <span class="badge badge-purple" id="currentModelBadge">llama-3.3-70b</span>
+    </div>
+    <div class="card-body">
+
+      <!-- Groq API Key - reads from .env, hidden by default -->
+      <div class="option-row" id="apiKeyRow" style="display:none">
+        <label class="option-label">Groq API Key</label>
+        <div class="input-pw-wrap">
+          <input type="password" id="apiKey" class="input" placeholder="gsk_…" autocomplete="off">
+          <button class="pw-toggle" onclick="toggleApiKeyVisibility()" id="pwToggleBtn" title="Show/hide">👁</button>
+        </div>
+      </div>
+
+      <!-- Model selector -->
+      <div class="option-row">
+        <label class="option-label">Model</label>
+        <select class="input" id="modelSel" onchange="updateModelBadge()">
+          <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
+          <option value="llama-3.1-8b-instant">llama-3.1-8b-instant (fast)</option>
+          <option value="gemma2-9b-it">gemma2-9b-it</option>
+        </select>
+      </div>
+
+      <!-- Request delay -->
+      <div class="option-row">
+        <div class="option-row-inline">
+          <label class="option-label">Request Delay</label>
+          <span class="range-val" id="delayVal">2.0s</span>
+        </div>
+        <input type="range" id="delayRange" min="0.5" max="10" step="0.5" value="2"
+               oninput="document.getElementById('delayVal').textContent = parseFloat(this.value).toFixed(1)+'s'">
+      </div>
+
+      <!-- Table name -->
+      <div class="option-row">
+        <label class="option-label">SQL Table Name</label>
+        <input type="text" id="tableInput" class="input" value="register" placeholder="register">
+      </div>
+    </div>
+  </div>
+
+  <!-- Error display -->
+  <div class="sidebar-error" id="sidebarError"></div>
+
+  <!-- Process Button -->
+  <div class="process-btn-wrap">
+    <button class="btn btn-primary" id="uploadBtn" disabled onclick="startUpload()">
+      <span id="uploadBtnIcon">⚡</span>
+      <span id="uploadBtnText">Process File</span>
+    </button>
+  </div>
+</aside>

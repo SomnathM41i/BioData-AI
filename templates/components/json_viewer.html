@@ -1,0 +1,64 @@
+<style>
+/* ── JSON Viewer Component ──────────────────────────────────────────── */
+.json-viewer-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.json-viewer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--surf2);
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.json-viewer-title {
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text2);
+}
+.json-viewer-actions {
+  display: flex;
+  gap: 6px;
+}
+.json-pre {
+  margin: 0;
+  padding: 16px;
+  background: var(--surf);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.7;
+  overflow: auto;
+  max-height: 520px;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+/* Syntax highlighting */
+.json-key    { color: #c792ea; }
+.json-str    { color: #c3e88d; }
+.json-num    { color: #f78c6c; }
+.json-bool   { color: #89ddff; }
+.json-null   { color: var(--muted); font-style: italic; }
+.json-brace  { color: var(--text2); }
+</style>
+
+<div class="json-viewer-wrap" id="jsonViewerWrap" style="display:none">
+  <div class="json-viewer-toolbar">
+    <div class="json-viewer-title">
+      <span>{ }</span>
+      JSON Output
+      <span class="badge badge-purple" id="jsonRecordCount">0 records</span>
+    </div>
+    <div class="json-viewer-actions">
+      <button class="btn btn-ghost btn-xs" onclick="copyJSON()" id="copyJsonBtn">⧉ Copy</button>
+      <button class="btn btn-secondary btn-xs" onclick="exportData('json')">⬇ Download</button>
+    </div>
+  </div>
+  <pre class="json-pre" id="jsonPre">// No data yet. Process a file to see JSON output.</pre>
+</div>

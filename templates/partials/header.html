@@ -1,0 +1,234 @@
+<style>
+/* ── Header ──────────────────────────────────────────────────────────── */
+.site-header {
+  height: var(--header-h);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(10,10,15,.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 500;
+}
+.hdr-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+.logo-icon {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  box-shadow: 0 4px 14px rgba(240,165,0,.3);
+  flex-shrink: 0;
+}
+.logo-txt { font-size: 14px; font-weight: 800; letter-spacing: -.5px; }
+.logo-txt span { color: var(--accent); }
+
+/* Center nav */
+.hdr-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+}
+.hdr-nav a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: all var(--transition);
+  text-decoration: none;
+}
+.hdr-nav a:hover { color: var(--text); background: var(--surf3); }
+.hdr-nav a.active { color: var(--accent); background: rgba(240,165,0,.1); }
+
+/* Right side */
+.hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Model badge */
+.model-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+.model-pill .pulse { background: var(--accent); }
+
+/* User menu */
+.user-menu-wrap {
+  position: relative;
+}
+.user-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 10px 5px 5px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+.user-trigger:hover { border-color: var(--border2); }
+.user-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surf3);
+  flex-shrink: 0;
+}
+.user-avatar-placeholder {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #000;
+  flex-shrink: 0;
+}
+.user-info { display: flex; flex-direction: column; }
+.user-name-hdr  { font-size: 11px; font-weight: 700; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-email-hdr { font-size: 9px; color: var(--muted); font-family: var(--mono); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.caret { font-size: 9px; color: var(--muted); margin-left: 2px; transition: transform var(--transition); }
+.user-menu-wrap .dropdown.open .caret { transform: rotate(180deg); }
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  min-width: 210px;
+  z-index: 600;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  display: none;
+  animation: dd-in .15s ease;
+}
+.dropdown.open { display: block; }
+@keyframes dd-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.dd-header { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.dd-name  { font-size: 12px; font-weight: 700; }
+.dd-email { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-top: 3px; }
+.dd-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--text2);
+  cursor: pointer;
+  transition: background var(--transition);
+  text-decoration: none;
+}
+.dd-item:hover { background: var(--surf2); color: var(--text); }
+.dd-item-ico { width: 16px; text-align: center; opacity: .7; }
+.dd-item.danger { color: var(--red); }
+.dd-item.danger:hover { background: rgba(255,71,87,.07); }
+.dd-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+@media (max-width: 768px) {
+  .hdr-nav { display: none; }
+  .model-pill { display: none; }
+  .user-info { display: none; }
+}
+</style>
+
+<header class="site-header">
+  <div class="hdr-inner">
+    <!-- Logo -->
+    <a href="{{ url_for('main.dashboard') }}" class="logo">
+      <div class="logo-icon">💍</div>
+      <span class="logo-txt">Matrimony<span>AI</span></span>
+    </a>
+
+    <!-- Nav -->
+    {% if current_user and current_user.is_authenticated %}
+    <nav class="hdr-nav">
+      <a href="{{ url_for('main.dashboard') }}" class="{{ 'active' if request.endpoint == 'main.dashboard' else '' }}">
+        <span>⚡</span> Dashboard
+      </a>
+      <a href="{{ url_for('main.profile') }}" class="{{ 'active' if request.endpoint == 'main.profile' else '' }}">
+        <span>👤</span> Profile
+      </a>
+    </nav>
+
+    <!-- Right -->
+    <div class="hdr-right">
+      <div class="model-pill">
+        <span class="pulse"></span>
+        <span id="headerModelBadge">llama-3.3-70b</span>
+      </div>
+
+      <div class="user-menu-wrap">
+        <div class="user-trigger" onclick="toggleDropdown('userDropdown')">
+          {% if current_user.profile_image %}
+            <img src="{{ current_user.profile_image }}" alt="{{ current_user.name }}" class="user-avatar">
+          {% else %}
+            <div class="user-avatar-placeholder">{{ current_user.name[0]|upper }}</div>
+          {% endif %}
+          <div class="user-info">
+            <span class="user-name-hdr">{{ current_user.name }}</span>
+            <span class="user-email-hdr">{{ current_user.email }}</span>
+          </div>
+          <span class="caret">▼</span>
+        </div>
+
+        <div class="dropdown" id="userDropdown">
+          <div class="dd-header">
+            <div class="dd-name">{{ current_user.name }}</div>
+            <div class="dd-email">{{ current_user.email }}</div>
+          </div>
+          <a href="{{ url_for('main.profile') }}" class="dd-item">
+            <span class="dd-item-ico">👤</span> My Profile
+          </a>
+          <a href="{{ url_for('main.dashboard') }}" class="dd-item">
+            <span class="dd-item-ico">⚡</span> Dashboard
+          </a>
+          <div class="dd-divider"></div>
+          <a href="{{ url_for('auth.logout') }}" class="dd-item danger">
+            <span class="dd-item-ico">↩</span> Sign Out
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</header>

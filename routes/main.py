@@ -17,15 +17,20 @@ def index():
 @main_bp.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("index.html", user=current_user)
+    return render_template("pages/dashboard.html", user=current_user)
+
+
+@main_bp.route("/profile")
+@login_required
+def profile():
+    return render_template("pages/profile.html", user=current_user)
 
 
 @main_bp.route("/login")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("main.dashboard"))
-    # Save intended destination
     next_url = request.args.get("next")
     if next_url:
         session["next_url"] = next_url
-    return render_template("login.html")
+    return render_template("landing.html")

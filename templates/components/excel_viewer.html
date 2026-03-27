@@ -1,0 +1,206 @@
+<style>
+/* ── Excel Viewer Component ─────────────────────────────────────────── */
+.excel-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surf);
+}
+
+/* Toolbar */
+.excel-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surf2);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.excel-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.excel-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.excel-title {
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Column filter chips */
+.col-filters {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surf);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.col-filters::-webkit-scrollbar { display: none; }
+.col-chip {
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  font-family: var(--mono);
+  cursor: pointer;
+  background: var(--surf3);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.col-chip.active {
+  background: rgba(240,165,0,.12);
+  border-color: rgba(240,165,0,.4);
+  color: var(--accent);
+}
+.col-chip:hover { border-color: var(--border2); color: var(--text2); }
+.col-chip.active:hover { color: var(--accent); }
+
+/* Table area */
+.excel-table-wrap {
+  overflow: auto;
+  max-height: 480px;
+  background: var(--surf);
+}
+.excel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+.excel-table thead th {
+  background: var(--surf3);
+  padding: 8px 14px;
+  text-align: left;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 2px solid var(--border);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition);
+}
+.excel-table thead th:hover { background: var(--surf4); color: var(--text); }
+.excel-table thead th.sorted-asc::after  { content: ' ↑'; color: var(--accent); }
+.excel-table thead th.sorted-desc::after { content: ' ↓'; color: var(--accent); }
+.excel-table td {
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  color: var(--text);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.excel-table tr:hover td { background: rgba(240,165,0,.025); }
+.excel-table tr:last-child td { border-bottom: none; }
+.excel-table .row-idx {
+  color: var(--muted);
+  font-size: 9px;
+  text-align: center;
+  padding: 7px 8px;
+  min-width: 36px;
+  background: var(--surf2);
+  border-right: 2px solid var(--border);
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+.excel-table thead .row-idx-th {
+  background: var(--surf3);
+  position: sticky;
+  left: 0;
+  z-index: 4;
+}
+.cell-null { color: var(--muted); font-style: italic; opacity: .5; }
+.cell-num  { color: var(--blue); }
+.cell-long { cursor: help; }
+
+/* Footer bar */
+.excel-footer {
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--surf2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.excel-footer-info {
+  font-size: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.excel-footer-info span { color: var(--accent); font-weight: 700; }
+</style>
+
+<div class="excel-viewer" id="excelViewer" style="display:none">
+  <!-- Toolbar -->
+  <div class="excel-toolbar">
+    <div class="excel-toolbar-left">
+      <span style="font-size:18px">📊</span>
+      <div class="excel-title">
+        Extracted Data
+        <span class="badge badge-green" id="excelRowCount">0 rows</span>
+      </div>
+    </div>
+    <div class="excel-toolbar-right">
+      <input type="text" class="input" style="width:200px;padding:5px 10px;font-size:11px"
+             placeholder="🔍 Filter rows…" id="excelFilter" oninput="filterExcelRows(this.value)">
+      <button class="btn btn-secondary btn-sm" onclick="exportExcel()">
+        ⬇ Export XLSX
+      </button>
+    </div>
+  </div>
+
+  <!-- Column visibility chips -->
+  <div class="col-filters" id="colFilters"></div>
+
+  <!-- Table -->
+  <div class="excel-table-wrap">
+    <table class="excel-table" id="excelTable">
+      <thead id="excelHead"></thead>
+      <tbody id="excelBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div class="excel-footer">
+    <div class="excel-footer-info">
+      Showing <span id="excelVisibleCount">0</span> of <span id="excelTotalCount">0</span> rows
+      &nbsp;·&nbsp;
+      <span id="excelColCount">0</span> columns
+    </div>
+    <button class="btn btn-ghost btn-xs" onclick="resetExcelView()">↺ Reset</button>
+  </div>
+</div>

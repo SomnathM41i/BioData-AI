@@ -56,6 +56,7 @@ def upload():
         return jsonify({"error": "No file provided"}), 400
 
     file    = request.files["file"]
+    # API key: prefer form value (user override), else use from .env config
     api_key = request.form.get("api_key", "").strip() or current_app.config.get("GROQ_API_KEY", "")
     delay   = float(request.form.get("request_delay", 2.0))
     model   = request.form.get("model", "").strip() or None
@@ -63,7 +64,7 @@ def upload():
     if not file.filename:
         return jsonify({"error": "No file selected"}), 400
     if not api_key:
-        return jsonify({"error": "Groq API key is required"}), 400
+        return jsonify({"error": "Groq API key not configured. Set GROQ_API_KEY in .env"}), 400
 
     try:
         svc    = _get_upload_service()
