@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>{% block title %}Matrimony AI Agent{% endblock %}</title>
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<script>
+  window.CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+</script>
 <meta name="description" content="AI-powered matrimonial profile extraction platform">
 
 <!-- Fonts -->

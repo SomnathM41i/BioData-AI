@@ -3,7 +3,9 @@
 
 {% block extra_head %}
 <style>
-/* ── Dashboard layout ─────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════
+   ROOT / LAYOUT
+══════════════════════════════════════════════════════════ */
 .dashboard-wrap {
   max-width: 1600px;
   margin: 0 auto;
@@ -11,16 +13,13 @@
 }
 .dashboard-grid {
   display: grid;
-  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-columns: var(--sidebar-w, 320px) 1fr;
   gap: 18px;
   align-items: start;
 }
 @media (max-width: 960px) {
   .dashboard-grid { grid-template-columns: 1fr; }
-  :root { --sidebar-w: 100%; }
 }
-
-/* Workspace */
 .workspace {
   display: flex;
   flex-direction: column;
@@ -28,7 +27,9 @@
   min-width: 0;
 }
 
-/* Workspace tabs */
+/* ══════════════════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════════════════ */
 .ws-tabs {
   display: flex;
   gap: 4px;
@@ -73,12 +74,12 @@
   background: rgba(240,165,0,.15);
   color: var(--accent);
 }
-
-/* Tab panels */
 .ws-panel { display: none; }
 .ws-panel.on { display: block; }
 
-/* Export panel */
+/* ══════════════════════════════════════════════════════════
+   EXPORT BAR
+══════════════════════════════════════════════════════════ */
 .export-row {
   display: flex;
   flex-wrap: wrap;
@@ -90,28 +91,10 @@
   align-items: center;
   justify-content: space-between;
 }
-.export-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.export-title {
-  font-size: 11px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.export-count {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--muted);
-}
-.export-btns {
-  display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
-}
+.export-left { display: flex; align-items: center; gap: 10px; }
+.export-title { font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.export-count { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.export-btns { display: flex; gap: 7px; flex-wrap: wrap; }
 .exp-btn {
   padding: 7px 14px;
   font-size: 11px;
@@ -127,18 +110,16 @@
   align-items: center;
   gap: 6px;
 }
-.exp-btn:hover:not(:disabled) {
-  border-color: var(--border2);
-  color: var(--text);
-  transform: translateY(-1px);
-}
-.exp-btn.excel:hover:not(:disabled)  { border-color: rgba(0,200,150,.4);  color: var(--green); }
-.exp-btn.json:hover:not(:disabled)   { border-color: rgba(199,146,234,.4); color: var(--purple); }
-.exp-btn.sql:hover:not(:disabled)    { border-color: rgba(79,142,247,.4);  color: var(--blue); }
-.exp-btn.csv:hover:not(:disabled)    { border-color: rgba(240,165,0,.4);   color: var(--accent); }
+.exp-btn:hover:not(:disabled) { border-color: var(--border2); color: var(--text); transform: translateY(-1px); }
+.exp-btn.excel:hover:not(:disabled) { border-color: rgba(0,200,150,.4); color: var(--green); }
+.exp-btn.json:hover:not(:disabled)  { border-color: rgba(199,146,234,.4); color: var(--purple); }
+.exp-btn.sql:hover:not(:disabled)   { border-color: rgba(79,142,247,.4); color: var(--blue); }
+.exp-btn.csv:hover:not(:disabled)   { border-color: rgba(240,165,0,.4); color: var(--accent); }
 .exp-btn:disabled { opacity: .35; cursor: not-allowed; transform: none !important; }
 
-/* Chat */
+/* ══════════════════════════════════════════════════════════
+   CHAT
+══════════════════════════════════════════════════════════ */
 .chat-wrap {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -173,6 +154,7 @@
   border-radius: 10px;
   font-size: 12px;
   line-height: 1.55;
+  word-break: break-word;
 }
 .msg-user {
   align-self: flex-end;
@@ -208,7 +190,9 @@
 }
 .chat-input:focus { border-color: rgba(240,165,0,.4); }
 
-/* History list */
+/* ══════════════════════════════════════════════════════════
+   HISTORY
+══════════════════════════════════════════════════════════ */
 .history-list { display: flex; flex-direction: column; gap: 8px; }
 .hist-item {
   display: flex;
@@ -219,31 +203,82 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   transition: all var(--transition);
-  cursor: pointer;
 }
 .hist-item:hover { border-color: var(--border2); background: var(--surf3); }
 .hist-icon { font-size: 22px; flex-shrink: 0; }
 .hist-meta { flex: 1; min-width: 0; }
-.hist-name   { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-name {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .hist-detail { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
-.hist-actions {
+.hist-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+.hist-btn {
+  padding: 5px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--ui);
+  border: 1px solid var(--border);
+  background: var(--surf3);
+  color: var(--muted);
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
+  gap: 4px;
+  white-space: nowrap;
 }
+.hist-btn:hover           { color: var(--text); border-color: var(--border2); }
+.hist-btn.open:hover      { border-color: rgba(79,142,247,.4); color: var(--blue); background: rgba(79,142,247,.08); }
+.hist-btn.download:hover  { border-color: rgba(0,200,150,.4); color: var(--green); background: rgba(0,200,150,.08); }
+.hist-btn.delete:hover    { border-color: rgba(255,71,87,.4); color: var(--red); background: rgba(255,71,87,.08); }
+.hist-btn:disabled        { opacity: .4; cursor: not-allowed; }
+.dl-popup { position: relative; display: inline-block; }
+.dl-popup-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px;
+  min-width: 140px;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  flex-direction: column;
+  gap: 2px;
+}
+.dl-popup-menu.open { display: flex; }
+.dl-menu-item {
+  padding: 7px 12px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text2);
+  user-select: none;
+}
+.dl-menu-item:hover { background: var(--surf3); color: var(--text); }
 
-/* Preview panel */
+/* ══════════════════════════════════════════════════════════
+   PREVIEW PANEL
+══════════════════════════════════════════════════════════ */
 .preview-panel {
   background: var(--surf2);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
-.preview-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--border);
-}
+.preview-tabs { display: flex; border-bottom: 1px solid var(--border); }
 .prev-tab {
   padding: 9px 16px;
   font-size: 11px;
@@ -253,65 +288,408 @@
   border-bottom: 2px solid transparent;
   transition: all var(--transition);
   background: none;
-  border-top: none; border-left: none; border-right: none;
-  display: flex; align-items: center; gap: 6px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .prev-tab:hover { color: var(--text); }
 .prev-tab.on { color: var(--accent); border-bottom-color: var(--accent); }
 .prev-panel { display: none; padding: 16px; }
 .prev-panel.on { display: block; }
+
+/* ══════════════════════════════════════════════════════════
+   PROCESSING OVERLAY  (full rewrite)
+══════════════════════════════════════════════════════════ */
+.proc-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+.proc-overlay.on { display: flex; }
+
+.proc-modal {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: min(660px, 95vw);
+  max-height: 92vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 32px 80px rgba(0,0,0,.7);
+  animation: mpop .28s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes mpop {
+  from { opacity:0; transform:translateY(28px) scale(.95); }
+  to   { opacity:1; transform:none; }
+}
+
+/* Header */
+.proc-head {
+  padding: 16px 22px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surf2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.proc-head-ico { font-size: 24px; flex-shrink: 0; }
+.proc-head-text { flex: 1; min-width: 0; }
+.proc-head-title { font-size: 15px; font-weight: 800; margin-bottom: 2px; }
+.proc-head-sub {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.proc-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.proc-badge.running { background: rgba(240,165,0,.15); color: var(--accent); border: 1px solid rgba(240,165,0,.3); }
+.proc-badge.paused  { background: rgba(79,142,247,.12); color: var(--blue);   border: 1px solid rgba(79,142,247,.3); }
+.proc-badge.done    { background: rgba(0,200,150,.15);  color: var(--green);  border: 1px solid rgba(0,200,150,.3); }
+.proc-badge.failed  { background: rgba(255,71,87,.15);  color: var(--red);    border: 1px solid rgba(255,71,87,.3); }
+
+/* Progress block */
+.proc-prog-wrap { padding: 16px 22px 10px; }
+.proc-track {
+  height: 10px;
+  background: var(--surf3);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.proc-bar {
+  height: 100%;
+  border-radius: 10px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), #f5a623);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+  transition: width .8s ease;
+}
+.proc-bar.paused { background: var(--blue); animation: none; }
+.proc-bar.done   { background: var(--green); animation: none; }
+.proc-bar.failed { background: var(--red);   animation: none; }
+@keyframes shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* Stats row */
+.proc-stats { display: flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.proc-stat { flex: 1; text-align: center; padding: 10px 4px; border-right: 1px solid var(--border); }
+.proc-stat:last-child { border-right: none; }
+.proc-stat-val { font-size: 20px; font-weight: 800; font-family: var(--mono); }
+.proc-stat-val.g { color: var(--green); }
+.proc-stat-val.a { color: var(--accent); }
+.proc-stat-val.b { color: var(--blue); }
+.proc-stat-key { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+
+/* Step pipeline */
+.proc-steps { display: flex; padding: 12px 22px 6px; overflow-x: auto; }
+.proc-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 60px;
+  position: relative;
+}
+.proc-step::before {
+  content: '';
+  position: absolute;
+  top: 11px;
+  left: calc(50% + 13px);
+  right: calc(-50% + 13px);
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+  transition: background .4s;
+}
+.proc-step:last-child::before { display: none; }
+.proc-step.s-done::before { background: var(--green); }
+.s-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surf3);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  position: relative;
+  z-index: 1;
+  transition: all .35s;
+}
+.proc-step.s-done   .s-dot { background: var(--green);  border-color: var(--green);  color: #fff; }
+.proc-step.s-active .s-dot { background: var(--accent); border-color: var(--accent); color: #000; animation: pdot 1.2s ease infinite; }
+.proc-step.s-failed .s-dot { background: var(--red);    border-color: var(--red);    color: #fff; }
+.proc-step.s-paused .s-dot { background: var(--blue);   border-color: var(--blue);   color: #fff; }
+@keyframes pdot {
+  0%,100% { box-shadow: 0 0 0 0 rgba(240,165,0,.5); }
+  50%      { box-shadow: 0 0 0 7px rgba(240,165,0,0); }
+}
+.s-label { font-size: 9px; color: var(--muted); margin-top: 5px; text-align: center; font-weight: 700; }
+.proc-step.s-active .s-label { color: var(--accent); }
+.proc-step.s-done   .s-label { color: var(--green); }
+.proc-step.s-paused .s-label { color: var(--blue); }
+
+/* Ticker row */
+.proc-ticker {
+  margin: 6px 22px;
+  padding: 10px 14px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+}
+.t-spin {
+  width: 15px; height: 15px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  flex-shrink: 0;
+}
+.t-spin.paused { border-top-color: var(--blue);  animation: none; }
+.t-spin.done   { border-top-color: var(--green); animation: none; border-color: var(--green); }
+.t-spin.failed { border-top-color: var(--red);   animation: none; border-color: var(--red); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.t-text { font-size: 11px; color: var(--text2); font-family: var(--mono); flex: 1; }
+.t-pct  { font-size: 12px; font-weight: 800; color: var(--accent); flex-shrink: 0; font-family: var(--mono); }
+
+/* Live log pane */
+.proc-livelog {
+  flex: 1;
+  margin: 6px 22px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow-y: auto;
+  max-height: 180px;
+  min-height: 60px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--mono);
+  font-size: 10px;
+}
+.ll { display: flex; gap: 7px; animation: ll-in .15s ease; }
+@keyframes ll-in {
+  from { opacity:0; transform:translateX(-4px); }
+  to   { opacity:1; transform:none; }
+}
+.ll-t  { color: var(--muted); flex-shrink: 0; }
+.ll-l  { flex-shrink: 0; font-weight: 700; min-width: 46px; }
+.ll-m  { color: var(--text2); word-break: break-all; }
+.ll-OK    { color: var(--green); }
+.ll-SKIP  { color: var(--muted); }
+.ll-STEP  { color: var(--blue); }
+.ll-WARN  { color: var(--accent); }
+.ll-ERROR { color: var(--red); }
+.ll-INFO  { color: var(--text2); }
+
+/* Pause banner (shown when rate-limited) */
+.proc-pause-banner {
+  display: none;
+  margin: 0 22px 6px;
+  padding: 9px 14px;
+  background: rgba(79,142,247,.08);
+  border: 1px solid rgba(79,142,247,.3);
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--blue);
+  font-family: var(--mono);
+  align-items: center;
+  gap: 8px;
+}
+.proc-pause-banner.on { display: flex; }
+
+/* Footer */
+.proc-foot {
+  padding: 12px 22px;
+  border-top: 1px solid var(--border);
+  background: var(--surf2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.proc-foot-info  { font-size: 10px; color: var(--muted); font-family: var(--mono); }
+.proc-foot-btns  { display: flex; gap: 8px; }
 </style>
 {% endblock %}
 
 {% block body %}
+
+<!-- ══════════════════════════════════════════════════════
+     PROCESSING OVERLAY
+══════════════════════════════════════════════════════ -->
+<div class="proc-overlay" id="procOverlay" role="dialog" aria-modal="true" aria-label="Processing file">
+  <div class="proc-modal">
+
+    <!-- Header -->
+    <div class="proc-head">
+      <span class="proc-head-ico" aria-hidden="true">⚡</span>
+      <div class="proc-head-text">
+        <div class="proc-head-title">Processing File</div>
+        <div class="proc-head-sub" id="po-filename">—</div>
+      </div>
+      <span class="proc-badge running" id="po-badge">Processing…</span>
+    </div>
+
+    <!-- Progress bar + stats -->
+    <div class="proc-prog-wrap">
+      <div class="proc-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="po-track">
+        <div class="proc-bar" id="po-bar"></div>
+      </div>
+      <div class="proc-stats">
+        <div class="proc-stat">
+          <div class="proc-stat-val"   id="po-pages">0/0</div>
+          <div class="proc-stat-key">Pages</div>
+        </div>
+        <div class="proc-stat">
+          <div class="proc-stat-val g" id="po-profiles">0</div>
+          <div class="proc-stat-key">Profiles</div>
+        </div>
+        <div class="proc-stat">
+          <div class="proc-stat-val a" id="po-skipped">0</div>
+          <div class="proc-stat-key">Skipped</div>
+        </div>
+        <div class="proc-stat">
+          <div class="proc-stat-val a" id="po-pct">0%</div>
+          <div class="proc-stat-key">Complete</div>
+        </div>
+        <div class="proc-stat">
+          <div class="proc-stat-val b" id="po-retries">0</div>
+          <div class="proc-stat-key">Retries</div>
+        </div>
+        <div class="proc-stat">
+          <div class="proc-stat-val"   id="po-model">—</div>
+          <div class="proc-stat-key">Model</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step pipeline -->
+    <div class="proc-steps" aria-hidden="true">
+      <div class="proc-step s-active" id="ps-upload">
+        <div class="s-dot">📤</div><span class="s-label">Upload</span>
+      </div>
+      <div class="proc-step" id="ps-parse">
+        <div class="s-dot">🔍</div><span class="s-label">Parse</span>
+      </div>
+      <div class="proc-step" id="ps-extract">
+        <div class="s-dot">🤖</div><span class="s-label">Extract</span>
+      </div>
+      <div class="proc-step" id="ps-save">
+        <div class="s-dot">💾</div><span class="s-label">Save</span>
+      </div>
+      <div class="proc-step" id="ps-done">
+        <div class="s-dot">✅</div><span class="s-label">Done</span>
+      </div>
+    </div>
+
+    <!-- Ticker -->
+    <div class="proc-ticker">
+      <div class="t-spin" id="po-spin" aria-hidden="true"></div>
+      <div class="t-text" id="po-ticker">Uploading file…</div>
+      <div class="t-pct"  id="po-tpct">0%</div>
+    </div>
+
+    <!-- Rate-limit / pause banner -->
+    <div class="proc-pause-banner" id="po-pause-banner" aria-live="polite">
+      <span>⏸</span>
+      <span id="po-pause-reason">Rate limit hit — retrying…</span>
+    </div>
+
+    <!-- Live log -->
+    <div class="proc-livelog" id="po-log" aria-live="polite">
+      <div style="color:var(--muted)">Waiting for logs…</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="proc-foot">
+      <div class="proc-foot-info" id="po-info">Job started — keep this window open</div>
+      <div class="proc-foot-btns">
+        <button class="btn btn-ghost btn-xs" onclick="overlayViewLogs()">📋 Full Logs</button>
+        <button class="btn btn-primary btn-xs" id="po-done-btn" style="display:none"
+                onclick="overlayClose()">✓ View Results</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════════════════════ -->
 <div class="dashboard-wrap">
   <div class="dashboard-grid">
 
-    <!-- ── Sidebar ──────────────────────────────────────────────────── -->
     {% include 'components/upload_panel.html' %}
 
-    <!-- ── Main Workspace ──────────────────────────────────────────── -->
-    <main class="workspace z1">
-
-      <!-- Progress bar (shown when job is active) -->
+    <main class="workspace">
       {% include 'components/progress_bar.html' %}
 
-      <!-- Workspace tabs -->
-      <div class="ws-tabs" id="wsTabs">
-        <button class="ws-tab on" id="tab-results" onclick="switchTab('results')">
-          <span class="tab-ico">💍</span>
+      <!-- Tabs -->
+      <div class="ws-tabs" id="wsTabs" role="tablist">
+        <button class="ws-tab on" id="tab-results" role="tab" aria-selected="true"
+                onclick="switchTab('results')">
+          <span class="tab-ico" aria-hidden="true">💍</span>
           Results
           <span class="tab-count" id="profileCount">0</span>
         </button>
-        <button class="ws-tab" id="tab-excel" onclick="switchTab('excel')">
-          <span class="tab-ico">📊</span>
-          Excel View
+        <button class="ws-tab" id="tab-excel" role="tab" aria-selected="false"
+                onclick="switchTab('excel')">
+          <span class="tab-ico" aria-hidden="true">📊</span> Excel View
         </button>
-        <button class="ws-tab" id="tab-output" onclick="switchTab('output')">
-          <span class="tab-ico">⬡</span>
-          Export Output
+        <button class="ws-tab" id="tab-output" role="tab" aria-selected="false"
+                onclick="switchTab('output')">
+          <span class="tab-ico" aria-hidden="true">⬡</span> Export Output
         </button>
-        <button class="ws-tab" id="tab-logs" onclick="switchTab('logs')">
-          <span class="tab-ico">📋</span>
+        <button class="ws-tab" id="tab-logs" role="tab" aria-selected="false"
+                onclick="switchTab('logs')">
+          <span class="tab-ico" aria-hidden="true">📋</span>
           Logs
           <span class="tab-count" id="logCount">0</span>
         </button>
-        <button class="ws-tab" id="tab-chat" onclick="switchTab('chat')">
-          <span class="tab-ico">💬</span>
-          AI Chat
+        <button class="ws-tab" id="tab-chat" role="tab" aria-selected="false"
+                onclick="switchTab('chat')">
+          <span class="tab-ico" aria-hidden="true">💬</span> AI Chat
         </button>
-        <button class="ws-tab" id="tab-history" onclick="switchTab('history')">
-          <span class="tab-ico">📂</span>
-          History
+        <button class="ws-tab" id="tab-history" role="tab" aria-selected="false"
+                onclick="switchTab('history')">
+          <span class="tab-ico" aria-hidden="true">📂</span> History
         </button>
       </div>
 
-      <!-- ── Tab: Results ─────────────────────────────────────────── -->
-      <div class="ws-panel on" id="panel-results">
-        <!-- Export row -->
-        <div class="export-row" id="exportRow">
+      <!-- Results panel -->
+      <div class="ws-panel on" id="panel-results" role="tabpanel">
+        <div class="export-row">
           <div class="export-left">
-            <span style="font-size:18px">⬇</span>
+            <span style="font-size:18px" aria-hidden="true">⬇</span>
             <div>
               <div class="export-title">Export Extracted Data</div>
               <div class="export-count" id="exportCount">0 profiles ready</div>
@@ -324,58 +702,59 @@
             <button class="exp-btn csv"   id="exp-csv"   disabled onclick="exportData('csv')">📋 CSV</button>
           </div>
         </div>
-
-        <!-- Profile cards / table -->
         {% include 'components/results_table.html' %}
       </div>
 
-      <!-- ── Tab: Excel View ────────────────────────────────────── -->
-      <div class="ws-panel" id="panel-excel">
+      <!-- Excel panel -->
+      <div class="ws-panel" id="panel-excel" role="tabpanel">
         {% include 'components/excel_viewer.html' %}
         <div class="empty-state" id="excelEmpty" style="padding:48px">
           <span class="empty-state-icon">📊</span>
           <p class="empty-state-title">No data to view</p>
-          <p class="empty-state-sub">Process a file first, then return here for the spreadsheet view</p>
+          <p class="empty-state-sub">Process a file first</p>
         </div>
       </div>
 
-      <!-- ── Tab: Export Output ─────────────────────────────────── -->
-      <div class="ws-panel" id="panel-output">
+      <!-- Export Output panel -->
+      <div class="ws-panel" id="panel-output" role="tabpanel">
         <div class="preview-panel">
           <div class="preview-tabs">
-            <button class="prev-tab on" id="prevt-json" onclick="switchPrevTab('json',this)">{ } JSON</button>
-            <button class="prev-tab" id="prevt-sql" onclick="switchPrevTab('sql',this)">🗄 SQL</button>
+            <button class="prev-tab on" onclick="switchPrevTab('json', this)">{ } JSON</button>
+            <button class="prev-tab"    onclick="switchPrevTab('sql',  this)">🗄 SQL</button>
           </div>
-          <div class="prev-panel on" id="prevp-json">
-            {% include 'components/json_viewer.html' %}
-          </div>
-          <div class="prev-panel" id="prevp-sql">
-            {% include 'components/sql_viewer.html' %}
-          </div>
+          <div class="prev-panel on" id="prevp-json">{% include 'components/json_viewer.html' %}</div>
+          <div class="prev-panel"    id="prevp-sql">{% include 'components/sql_viewer.html' %}</div>
         </div>
       </div>
 
-      <!-- ── Tab: Logs ──────────────────────────────────────────── -->
-      <div class="ws-panel" id="panel-logs">
+      <!-- Logs panel -->
+      <div class="ws-panel" id="panel-logs" role="tabpanel">
         {% include 'components/logs_panel.html' %}
       </div>
 
-      <!-- ── Tab: Chat ──────────────────────────────────────────── -->
-      <div class="ws-panel" id="panel-chat">
+      <!-- Chat panel -->
+      <div class="ws-panel" id="panel-chat" role="tabpanel">
         <div class="chat-wrap">
           <div class="chat-header">
-            <span>💬</span>
+            <span aria-hidden="true">💬</span>
             AI Assistant
             <span class="badge badge-purple" style="margin-left:4px">LLaMA 3.1 8B</span>
           </div>
-          <div class="chat-box" id="chatBox">
+          <div class="chat-box" id="chatBox" aria-live="polite">
             <div class="msg msg-ai">
-              👋 Hi! I'm your matrimonial data assistant. Upload and process a file, then ask me anything about the extracted profiles — summaries, filtering, SQL queries, match analysis, and more.
+              👋 Hi! I'm your matrimonial data assistant. Upload and process a file, then ask me
+              anything about the extracted profiles.
             </div>
           </div>
           <div class="chat-input-row">
-            <textarea class="chat-input" id="chatInput" placeholder="Ask about the profiles…" rows="1"
-                      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
+            <textarea
+              class="chat-input"
+              id="chatInput"
+              placeholder="Ask about the profiles…"
+              rows="1"
+              aria-label="Chat message"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
+            ></textarea>
             <button class="btn btn-primary btn-sm" id="chatSend" onclick="sendChat()" style="flex-shrink:0">
               ↑ Send
             </button>
@@ -383,12 +762,12 @@
         </div>
       </div>
 
-      <!-- ── Tab: History ───────────────────────────────────────── -->
-      <div class="ws-panel" id="panel-history">
+      <!-- History panel -->
+      <div class="ws-panel" id="panel-history" role="tabpanel">
         <div class="card">
           <div class="card-header">
             <div class="card-header-left">
-              <span>📂</span>
+              <span aria-hidden="true">📂</span>
               <h3>Upload History</h3>
             </div>
             <button class="btn btn-ghost btn-xs" onclick="loadHistory()">↺ Refresh</button>
@@ -411,475 +790,782 @@
 
 {% block extra_scripts %}
 <script>
-// ── State ───────────────────────────────────────────────────────────────
-let selectedFile   = null;
-let currentFileType = 'image';
-let currentJobId   = null;
-let pollInterval   = null;
-let allProfiles    = [];
-let currentView    = 'cards';
-let currentLogFilter = 'ALL';
-let lastLogCount   = 0;
-let logCounts      = { OK: 0, WARN: 0, ERROR: 0, STEP: 0, INFO: 0 };
+// ════════════════════════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════════════════════════
+const State = {
+  selectedFile:    null,
+  fileType:        'image',
+  jobId:           null,
+  pollTimer:       null,
+  allProfiles:     [],
+  currentView:     'cards',
+  logFilter:       'ALL',
+  lastLogCount:    0,
+  logCounts:       { OK: 0, WARN: 0, ERROR: 0, STEP: 0, INFO: 0, SKIP: 0 },
+  overlayLogCount: 0,
+  procStart:       null,
+  excelRows:       [],
+  excelCols:       new Set(),
+  excelSortCol:    null,
+  excelSortDir:    1,
+  retryCount:      0,    // tracks rate-limit retries shown in overlay
+  skippedCount:    0,    // tracks skipped pages
+};
 
-// ── File Type Selection ─────────────────────────────────────────────────
+// Milliseconds between status polls — 1 second for snappy real-time feel
+const POLL_INTERVAL_MS = 1000;
+
+const OVERLAY_STEPS = ['upload', 'parse', 'extract', 'save', 'done'];
+
+// ════════════════════════════════════════════════════════════════════════════
+//  UTILITIES
+// ════════════════════════════════════════════════════════════════════════════
+function Q(sel) { return document.querySelector(sel); }
+
+function esc(s) {
+  return String(s ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function ts() { return new Date().toTimeString().slice(0,8); }
+
+async function apiPost(url, body) {
+  return fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.CSRF || '' },
+    body: JSON.stringify(body),
+  });
+}
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a   = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+function _shortModel(name) {
+  return (name || '—').split('-').slice(0,3).join('-');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  PROCESSING OVERLAY
+// ════════════════════════════════════════════════════════════════════════════
+
+function overlayOpen(filename) {
+  // Reset all counters
+  State.overlayLogCount = 0;
+  State.procStart       = Date.now();
+  State.retryCount      = 0;
+  State.skippedCount    = 0;
+
+  // Reset DOM
+  Q('#po-filename').textContent   = filename;
+  Q('#po-bar').style.width        = '0%';
+  Q('#po-bar').className          = 'proc-bar';
+  Q('#po-track').setAttribute('aria-valuenow', '0');
+  Q('#po-pages').textContent      = '0/0';
+  Q('#po-profiles').textContent   = '0';
+  Q('#po-skipped').textContent    = '0';
+  Q('#po-pct').textContent        = '0%';
+  Q('#po-retries').textContent    = '0';
+  Q('#po-model').textContent      = '—';
+  Q('#po-ticker').textContent     = 'Uploading file…';
+  Q('#po-tpct').textContent       = '0%';
+  Q('#po-spin').className         = 't-spin';
+  Q('#po-badge').textContent      = 'Processing…';
+  Q('#po-badge').className        = 'proc-badge running';
+  Q('#po-done-btn').style.display = 'none';
+  Q('#po-info').textContent       = 'Job started — keep this window open';
+  Q('#po-log').innerHTML          = '<div style="color:var(--muted)">Waiting for logs…</div>';
+  Q('#po-pause-banner').classList.remove('on');
+
+  OVERLAY_STEPS.forEach(s => {
+    const el = Q('#ps-' + s);
+    if (el) el.className = 'proc-step';
+  });
+  _setStep('upload', 'active');
+
+  Q('#procOverlay').classList.add('on');
+}
+
+/**
+ * _setStep — drive the step pipeline indicator.
+ * @param {string} name  - step name (upload|parse|extract|save|done)
+ * @param {string} state - 'active' | 'done' | 'failed' | 'paused'
+ * All steps BEFORE name are marked done; all AFTER are reset.
+ */
+function _setStep(name, state = 'active') {
+  let passed = false;
+  OVERLAY_STEPS.forEach(s => {
+    const el = Q('#ps-' + s);
+    if (!el) return;
+    if (s === name) {
+      el.className = 'proc-step s-' + state;
+      passed = true;
+    } else if (!passed) {
+      el.className = 'proc-step s-done';
+    } else {
+      el.className = 'proc-step';
+    }
+  });
+}
+
+/**
+ * overlayUpdate — called on every poll tick with the full job object.
+ * Derives ALL display values from job fields — no stale local state.
+ */
+function overlayUpdate(job) {
+  const total   = job.total_pages  || 0;
+  const done    = job.processed    || 0;
+  const success = job.success      || 0;
+  const skipped = job.skipped      || 0;
+  const retries = job.retries      || 0;
+  const isPaused = !!(job.pause_reason);
+
+  const pct = (total > 0)
+    ? Math.min(Math.round(done / total * 100), 100)
+    : (job.status === 'done' ? 100 : 0);
+
+  // Progress bar
+  const bar = Q('#po-bar');
+  bar.style.width = pct + '%';
+  if (!isPaused) bar.className = 'proc-bar';
+  else           bar.className = 'proc-bar paused';
+  Q('#po-track').setAttribute('aria-valuenow', pct);
+
+  // Stat chips
+  Q('#po-pages').textContent    = done + '/' + total;
+  Q('#po-profiles').textContent = success;
+  Q('#po-skipped').textContent  = skipped;
+  Q('#po-pct').textContent      = pct + '%';
+  Q('#po-retries').textContent  = retries;
+  Q('#po-tpct').textContent     = pct + '%';
+  Q('#po-model').textContent    = _shortModel(job.current_model || '—');
+
+  // Ticker text — show latest log msg or pause reason
+  const logs = Array.isArray(job.logs) ? job.logs : [];
+  if (isPaused) {
+    Q('#po-ticker').textContent = '⏸ ' + job.pause_reason;
+    Q('#po-pause-reason').textContent = job.pause_reason;
+    Q('#po-pause-banner').classList.add('on');
+    Q('#po-spin').className = 't-spin paused';
+    Q('#po-badge').textContent = 'Rate limited…';
+    Q('#po-badge').className   = 'proc-badge paused';
+  } else {
+    Q('#po-pause-banner').classList.remove('on');
+    Q('#po-spin').className    = 't-spin';
+    Q('#po-badge').textContent = 'Processing…';
+    Q('#po-badge').className   = 'proc-badge running';
+    if (logs.length) {
+      Q('#po-ticker').textContent = logs[logs.length - 1].msg || 'Processing…';
+    }
+  }
+
+  // Append only NEW log lines (delta)
+  const pane    = Q('#po-log');
+  const newLogs = logs.slice(State.overlayLogCount);
+  if (newLogs.length && State.overlayLogCount === 0) pane.innerHTML = '';
+
+  newLogs.forEach(l => {
+    const d  = document.createElement('div');
+    d.className = 'll';
+    d.innerHTML =
+      '<span class="ll-t">[' + esc(l.time) + ']</span>' +
+      '<span class="ll-l ll-' + esc(l.level) + '">' + esc(l.level) + '</span>' +
+      '<span class="ll-m ll-' + esc(l.level) + '">' + esc(l.msg) + '</span>';
+    pane.appendChild(d);
+  });
+  if (newLogs.length) pane.scrollTop = pane.scrollHeight;
+  State.overlayLogCount = logs.length;
+
+  // Step indicator from pct + status
+  if (job.status === 'processing') {
+    const stepState = isPaused ? 'paused' : 'active';
+    if      (pct === 0)  _setStep('upload',  stepState);
+    else if (pct < 25)   _setStep('parse',   stepState);
+    else if (pct < 90)   _setStep('extract', stepState);
+    else                 _setStep('save',    stepState);
+  }
+
+  // Elapsed time in footer
+  const elapsed = Math.round((Date.now() - State.procStart) / 1000);
+  Q('#po-info').textContent = `Running for ${elapsed}s · ${total} pages total`;
+}
+
+function overlayFinish(ok) {
+  const bar = Q('#po-bar');
+  bar.style.width  = '100%';
+  bar.className    = 'proc-bar ' + (ok ? 'done' : 'failed');
+  Q('#po-track').setAttribute('aria-valuenow', 100);
+
+  Q('#po-spin').className      = 't-spin ' + (ok ? 'done' : 'failed');
+  Q('#po-ticker').textContent  = ok ? '✓ Extraction complete!' : '✗ Processing failed — check logs';
+  Q('#po-tpct').textContent    = ok ? '100%' : 'ERR';
+  Q('#po-badge').textContent   = ok ? 'Done ✓' : 'Failed ✗';
+  Q('#po-badge').className     = 'proc-badge ' + (ok ? 'done' : 'failed');
+  Q('#po-pause-banner').classList.remove('on');
+
+  if (ok) {
+    OVERLAY_STEPS.forEach(s => {
+      const el = Q('#ps-' + s);
+      if (el) el.className = 'proc-step s-done';
+    });
+  } else {
+    _setStep('extract', 'failed');
+  }
+
+  Q('#po-done-btn').style.display = 'inline-flex';
+  const elapsed = Math.round((Date.now() - State.procStart) / 1000);
+  Q('#po-info').textContent = `Finished in ${elapsed}s`;
+}
+
+function overlayClose()    { Q('#procOverlay').classList.remove('on'); switchTab('results'); }
+function overlayViewLogs() { Q('#procOverlay').classList.remove('on'); switchTab('logs'); }
+
+// ════════════════════════════════════════════════════════════════════════════
+//  FILE TYPE SELECTOR
+// ════════════════════════════════════════════════════════════════════════════
 function setType(type, el) {
-  currentFileType = type;
+  State.fileType = type;
   document.querySelectorAll('.type-card').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
 
-  const maps = {
-    image: { accept:'image/*',    sub:'JPG, PNG, JPEG · max 50MB', icon:'🖼️' },
-    pdf:   { accept:'application/pdf,.pdf', sub:'PDF files · max 50MB', icon:'📄' },
-    doc:   { accept:'.docx,.doc,.txt',      sub:'DOCX, DOC, TXT · max 50MB', icon:'📝' },
-  };
-  const m = maps[type] || maps.image;
-  document.getElementById('fileInput').accept = m.accept;
-  document.getElementById('dzAccept').textContent = m.sub;
-  document.getElementById('dzIcon').textContent   = m.icon;
+  const cfg = {
+    image: { accept: 'image/*',              sub: 'JPG, PNG, JPEG · max 50MB', icon: '🖼️' },
+    pdf:   { accept: 'application/pdf,.pdf',  sub: 'PDF files · max 50MB',      icon: '📄' },
+    doc:   { accept: '.docx,.doc,.txt',        sub: 'DOCX, DOC, TXT · max 50MB', icon: '📝' },
+  }[type] || {};
+
+  const inp = Q('#fileInput'); if (inp) inp.accept = cfg.accept;
+  const sub = Q('#dzAccept'); if (sub) sub.textContent = cfg.sub;
+  const ico = Q('#dzIcon');   if (ico) ico.textContent = cfg.icon;
   clearFile();
 }
 
-// ── File Handling ───────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  FILE HANDLING
+// ════════════════════════════════════════════════════════════════════════════
 function handleFileSelect(file) {
   if (!file) return;
-  selectedFile = file;
-  const icons = { 'application/pdf':'📄', 'image/jpeg':'🖼️', 'image/png':'🖼️', 'image/jpg':'🖼️' };
-  const icon = Object.entries(icons).find(([k]) => file.type.includes(k.split('/')[1]))?.[1] || '📝';
-  document.getElementById('fileInfo').classList.add('on');
-  document.getElementById('fileName').textContent  = file.name;
-  document.getElementById('fileSize').textContent  = formatSize(file.size);
-  document.getElementById('fileTypeIcon').textContent = icon;
-  document.getElementById('uploadBtn').disabled = false;
+  State.selectedFile = file;
+
+  const typeIcons = { pdf:'📄', jpeg:'🖼️', png:'🖼️', jpg:'🖼️' };
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const icon = typeIcons[ext] || '📝';
+
+  Q('#fileInfo').classList.add('on');
+  Q('#fileName').textContent     = file.name;
+  Q('#fileSize').textContent     = formatSize(file.size);
+  Q('#fileTypeIcon').textContent = icon;
+  Q('#uploadBtn').disabled       = false;
   hideError();
 
   if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
     const reader = new FileReader();
     reader.onload = e => {
-      const prev = document.getElementById('previewWrap');
-      prev.textContent = e.target.result.slice(0, 300) + (e.target.result.length > 300 ? '…' : '');
-      prev.classList.add('on');
+      const preview = Q('#previewWrap'); if (!preview) return;
+      const text = e.target.result;
+      preview.textContent = text.length > 300 ? text.slice(0,300) + '…' : text;
+      preview.classList.add('on');
     };
     reader.readAsText(file);
   } else {
-    document.getElementById('previewWrap').classList.remove('on');
+    const preview = Q('#previewWrap'); if (preview) preview.classList.remove('on');
   }
 }
 
 function clearFile() {
-  selectedFile = null;
-  document.getElementById('fileInfo').classList.remove('on');
-  document.getElementById('previewWrap').classList.remove('on');
-  document.getElementById('fileInput').value = '';
-  document.getElementById('uploadBtn').disabled = true;
+  State.selectedFile = null;
+  const fi  = Q('#fileInfo');    if (fi)  fi.classList.remove('on');
+  const pw  = Q('#previewWrap'); if (pw)  pw.classList.remove('on');
+  const fi2 = Q('#fileInput');   if (fi2) fi2.value = '';
+  const ub  = Q('#uploadBtn');   if (ub)  ub.disabled = true;
   hideError();
 }
 
 // Drag & drop
-const dz = document.getElementById('dropZone');
-dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('over'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('over'));
-dz.addEventListener('drop', e => {
-  e.preventDefault();
-  dz.classList.remove('over');
-  const f = e.dataTransfer?.files?.[0];
-  if (f) handleFileSelect(f);
-});
+(function initDropZone() {
+  const dz = Q('#dropZone'); if (!dz) return;
+  dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('over');
+    const f = e.dataTransfer?.files?.[0]; if (f) handleFileSelect(f);
+  });
+})();
 
-// ── Upload ──────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  UPLOAD
+// ════════════════════════════════════════════════════════════════════════════
 async function startUpload() {
-  if (!selectedFile) return showError('Please select a file first.');
+  if (!State.selectedFile) return showError('Please select a file first.');
 
-  // Get api key - prefer from config, fall back to input field
-  let apiKey = document.getElementById('apiKey').value.trim();
-  // If key field is hidden and empty, the server uses .env key
-  const model = document.getElementById('modelSel').value;
-  const delay = document.getElementById('delayRange').value;
+  const apiKey = (Q('#apiKey')?.value   || '').trim();
+  const model  = (Q('#modelSel')?.value || '').trim();
+  const delay  = parseFloat(Q('#delayRange')?.value) || 2.0;
 
   const fd = new FormData();
-  fd.append('file', selectedFile);
+  fd.append('file', State.selectedFile);
   if (apiKey) fd.append('api_key', apiKey);
   fd.append('model', model);
   fd.append('request_delay', delay);
 
-  setUploadBtnLoading(true);
-  document.getElementById('logBox').innerHTML = '';
-  document.getElementById('logsEmpty').style.display = 'none';
-  document.getElementById('statusCard').classList.add('on');
-  document.getElementById('statusFile').textContent = selectedFile.name;
-  document.getElementById('statusSpinner').style.display = 'inline-block';
-  document.getElementById('statusIconStatic').style.display = 'none';
-  switchTab('logs');
+  // Clear previous job
+  _stopPolling();
+  State.lastLogCount = 0;
+  State.logCounts    = { OK:0, WARN:0, ERROR:0, STEP:0, INFO:0, SKIP:0 };
+
+  _setBtnLoading(true);
+  const logBox = Q('#logBox'); if (logBox) logBox.innerHTML = '';
+  const logsEmpty = Q('#logsEmpty'); if (logsEmpty) logsEmpty.style.display = 'none';
+
+  const statusCard = Q('#statusCard'); if (statusCard) statusCard.classList.add('on');
+  const statusFile = Q('#statusFile'); if (statusFile) statusFile.textContent = State.selectedFile.name;
+
+  const spin = Q('#statusSpinner');
+  const icon = Q('#statusIconStatic');
+  if (spin) spin.style.display = 'inline-block';
+  if (icon) icon.style.display = 'none';
+
+  overlayOpen(State.selectedFile.name);
 
   try {
     const res  = await fetch('/api/upload', {
-      method: 'POST',
-      headers: { 'X-CSRFToken': CSRF },
-      body: fd,
+      method:  'POST',
+      headers: { 'X-CSRFToken': window.CSRF || '' },
+      body:    fd,
     });
     const data = await res.json();
 
     if (!res.ok) {
       showError(data.error || 'Upload failed');
-      setUploadBtnLoading(false);
+      _setBtnLoading(false);
+      Q('#procOverlay').classList.remove('on');
       return;
     }
 
-    currentJobId = data.job_id;
-    lastLogCount = 0;
-    logCounts    = { OK: 0, WARN: 0, ERROR: 0, STEP: 0, INFO: 0 };
-    addLogEntry({ level:'STEP', msg:`Job started: ${data.job_id} [${data.file_type}]`, time: now() });
-    pollInterval = setInterval(pollStatus, 2000);
+    State.jobId = data.job_id;
+    addLog({ level:'STEP', msg:`Job started: ${data.job_id} [${data.file_type}]`, time:ts() });
+    _setStep('parse', 'active');
+    Q('#po-ticker').textContent = 'File uploaded — beginning extraction…';
+
+    // Start polling at 1-second interval for snappy updates
+    State.pollTimer = setInterval(doPoll, POLL_INTERVAL_MS);
 
   } catch (err) {
     showError('Network error: ' + err.message);
-    setUploadBtnLoading(false);
+    _setBtnLoading(false);
+    Q('#procOverlay').classList.remove('on');
   }
 }
 
-function setUploadBtnLoading(loading) {
-  const btn = document.getElementById('uploadBtn');
-  btn.disabled = loading;
-  document.getElementById('uploadBtnIcon').textContent = loading ? '⏳' : '⚡';
-  document.getElementById('uploadBtnText').textContent = loading ? 'Processing…' : 'Process File';
+function _setBtnLoading(on) {
+  const btn = Q('#uploadBtn');
+  const ico = Q('#uploadBtnIcon');
+  const txt = Q('#uploadBtnText');
+  if (btn) btn.disabled    = on;
+  if (ico) ico.textContent = on ? '⏳' : '⚡';
+  if (txt) txt.textContent = on ? 'Processing…' : 'Process File';
 }
 
-// ── Polling ─────────────────────────────────────────────────────────────
-async function pollStatus() {
-  if (!currentJobId) return;
+function _stopPolling() {
+  if (State.pollTimer) { clearInterval(State.pollTimer); State.pollTimer = null; }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  POLLING  — single source of truth for all real-time updates
+// ════════════════════════════════════════════════════════════════════════════
+async function doPoll() {
+  if (!State.jobId) return;
   try {
-    const res = await fetch(`/api/status/${currentJobId}`);
+    const res = await fetch('/api/status/' + State.jobId);
+    if (!res.ok) return;                         // transient error — retry next tick
     const job = await res.json();
-    if (!res.ok) return;
-    updateStatus(job);
-    if (['done','failed'].includes(job.status)) {
-      clearInterval(pollInterval);
-      pollInterval = null;
-      setUploadBtnLoading(false);
-      document.getElementById('statusSpinner').style.display = 'none';
-      document.getElementById('statusIconStatic').style.display = 'inline';
-      if (job.status === 'done') onJobDone(job);
-      else showToast('Job failed. Check logs for details.', 'error');
+
+    // Update BOTH the status card AND the overlay from the same job object
+    _updateStatusCard(job);
+    overlayUpdate(job);
+
+    if (job.status === 'done' || job.status === 'failed') {
+      _stopPolling();
+      _setBtnLoading(false);
+
+      const spin = Q('#statusSpinner');
+      const icon = Q('#statusIconStatic');
+      if (spin) spin.style.display = 'none';
+      if (icon) icon.style.display = 'inline';
+
+      if (job.status === 'done') {
+        onJobDone(job);
+        overlayFinish(true);
+      } else {
+        overlayFinish(false);
+        showToast('Job failed. Check logs.', 'error');
+      }
     }
-  } catch { /* retry */ }
+  } catch {
+    // Network hiccup — silent, will retry next interval
+  }
 }
 
-function updateStatus(job) {
-  const badge = document.getElementById('statusBadge');
-  badge.className  = `status-badge status-${job.status}`;
-  badge.textContent = job.status;
-
-  const total = job.total_pages || 0;
-  const done  = job.processed || 0;
-  const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
-
-  document.getElementById('progBar').style.width       = pct + '%';
-  document.getElementById('statPages').textContent     = `${done}/${total}`;
-  document.getElementById('statProfiles').textContent  = job.success || 0;
-  document.getElementById('statPct').textContent       = pct + '%';
-  document.getElementById('statModel').textContent     = (job.current_model || '—').replace('-versatile','').replace('-instant','');
-  document.getElementById('modelBadge').textContent    = '⚡ ' + (job.current_model || '—').split('-').slice(0,3).join('-');
-  document.getElementById('headerModelBadge').textContent = (job.current_model || '').split('-').slice(0,3).join('-');
-
-  const pauseBox = document.getElementById('pauseBox');
-  if (job.pause_reason) {
-    pauseBox.classList.add('on');
-    document.getElementById('pauseReason').textContent = job.pause_reason;
-  } else {
-    pauseBox.classList.remove('on');
+function _updateStatusCard(job) {
+  // Badge
+  const badge = Q('#statusBadge');
+  if (badge) {
+    badge.className   = 'status-badge status-' + (job.pause_reason ? 'paused' : job.status);
+    badge.textContent = job.pause_reason ? 'rate-limited' : job.status;
   }
 
-  if (job.logs) renderLogs(job.logs);
+  // Progress bar
+  const total = job.total_pages || 0;
+  const done  = job.processed   || 0;
+  const pct   = total > 0 ? Math.min(Math.round(done / total * 100), 100) : 0;
+  const bar   = Q('#progBar'); if (bar) bar.style.width = pct + '%';
+
+  // Stat counters
+  const sp = Q('#statPages');    if (sp) sp.textContent = `${done}/${total}`;
+  const sf = Q('#statProfiles'); if (sf) sf.textContent = job.success  || 0;
+  const sk = Q('#statSkipped');  if (sk) sk.textContent = job.skipped  || 0;
+  const sr = Q('#statRetries');  if (sr) sr.textContent = job.retries  || 0;
+  const sc = Q('#statPct');      if (sc) sc.textContent = pct + '%';
+  const sm = Q('#statModel');    if (sm) sm.textContent = _shortModel(job.current_model || '—');
+
+  // Model badges in header
+  const mb  = Q('#modelBadge');       if (mb)  mb.textContent  = '⚡ ' + _shortModel(job.current_model || '');
+  const hmb = Q('#headerModelBadge'); if (hmb) hmb.textContent = _shortModel(job.current_model || '');
+
+  // Pause box
+  const pb = Q('#pauseBox');
+  if (pb) {
+    if (job.pause_reason) {
+      pb.classList.add('on');
+      const pr = Q('#pauseReason'); if (pr) pr.textContent = job.pause_reason;
+    } else {
+      pb.classList.remove('on');
+    }
+  }
+
+  // Render logs (delta only, same as overlay)
+  if (Array.isArray(job.logs)) renderLogs(job.logs);
 }
 
-// ── Job Done ────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  JOB DONE
+// ════════════════════════════════════════════════════════════════════════════
 function onJobDone(job) {
-  allProfiles = job.profiles || [];
-  const n = allProfiles.length;
+  State.allProfiles = job.profiles || [];
+  const n = State.allProfiles.length;
 
-  // Update tab count
-  document.getElementById('profileCount').textContent = n;
+  const pc = Q('#profileCount'); if (pc) pc.textContent = n;
+  const ec = Q('#exportCount');  if (ec) ec.textContent = n + ' profile' + (n !== 1 ? 's' : '') + ' ready';
 
-  // Enable export buttons
-  document.getElementById('exportCount').textContent = `${n} profile${n !== 1 ? 's' : ''} ready`;
+  const sqlTable = Q('#tableInput')?.value || 'register';
+  const stn = Q('#sqlTableName'); if (stn) stn.textContent = sqlTable;
+
   ['sql','csv','excel','json'].forEach(f => {
-    document.getElementById('exp-' + f).disabled = n === 0;
+    const btn = Q('#exp-' + f); if (btn) btn.disabled = n === 0;
   });
 
-  // Update SQL table name badge
-  document.getElementById('sqlTableName').textContent = document.getElementById('tableInput').value || 'register';
-
-  // Render cards
-  renderProfiles(allProfiles);
-
-  // Build Excel view
-  buildExcelViewer(allProfiles);
-
-  // Build JSON/SQL previews
-  buildJSONPreview(allProfiles);
-  buildSQLPreview(allProfiles);
-
-  // Switch to results tab
-  switchTab('results');
+  renderProfiles(State.allProfiles);
+  buildExcelViewer(State.allProfiles);
+  buildJSONPreview(State.allProfiles);
+  buildSQLPreview(State.allProfiles);
 
   showToast(`✓ Extracted ${n} profile${n !== 1 ? 's' : ''} successfully!`, 'success', 4500);
 }
 
-// ── Profiles (Cards) ────────────────────────────────────────────────────
-function renderProfiles(profiles) {
-  const grid  = document.getElementById('profilesGrid');
-  const empty = document.getElementById('profilesEmpty');
-  grid.innerHTML = '';
-  if (!profiles.length) { empty.style.display = 'flex'; return; }
-  empty.style.display = 'none';
-  document.getElementById('profileCountBadge').textContent = profiles.length;
+// ════════════════════════════════════════════════════════════════════════════
+//  PROFILE RENDERING
+// ════════════════════════════════════════════════════════════════════════════
+const PROFILE_KEYS = ['Age','Gender','Education','Occupation','City','State','Caste','Religion'];
 
-  const KEY_SHOW = ['Age','Gender','Education','Occupation','City','State','Caste','Religion'];
-  profiles.forEach((p, i) => {
-    const card = document.createElement('div');
+function renderProfiles(profiles) {
+  const grid  = Q('#profilesGrid');
+  const empty = Q('#profilesEmpty');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  if (!profiles.length) { if (empty) empty.style.display = 'flex'; return; }
+  if (empty) empty.style.display = 'none';
+
+  const badge = Q('#profileCountBadge'); if (badge) badge.textContent = profiles.length;
+
+  profiles.forEach(p => {
+    const card    = document.createElement('div');
     card.className = 'profile-card';
-    card.dataset.idx = i;
-    const fields = KEY_SHOW.filter(k => p[k])
-      .map(k => `<span class="pc-field"><span>${k}:</span> ${p[k]}</span>`).join('');
-    card.innerHTML = `
-      <div class="pc-avatar">${p.Gender === 'Female' || p.Gender === 'F' ? '👩' : '👨'}</div>
-      <div class="pc-name">${p.Name || 'Unknown'}</div>
-      <div class="pc-sub">${p.Mobile || ''} ${p.DOB ? '· ' + p.DOB : ''}</div>
-      <div class="pc-fields">${fields || '<span class="pc-field" style="color:var(--muted)">No details extracted</span>'}</div>`;
+
+    const gender = (p.Gender || '').toUpperCase();
+    const avatar = (gender === 'FEMALE' || gender === 'F') ? '👩' : '👨';
+    const fields = PROFILE_KEYS
+      .filter(k => p[k])
+      .map(k => `<span class="pc-field"><span>${esc(k)}:</span> ${esc(String(p[k]))}</span>`)
+      .join('');
+
+    card.innerHTML =
+      `<div class="pc-avatar">${avatar}</div>` +
+      `<div class="pc-name">${esc(p.Name || 'Unknown')}</div>` +
+      `<div class="pc-sub">${esc(p.Mobile || '')}${p.DOB ? ' · ' + esc(p.DOB) : ''}</div>` +
+      `<div class="pc-fields">${fields || '<span class="pc-field" style="color:var(--muted)">No details extracted</span>'}</div>`;
+
     grid.appendChild(card);
   });
 }
 
-// ── Profile search / filter ──────────────────────────────────────────────
 function filterProfiles(q) {
-  const query = q.toLowerCase().trim();
-  if (!query) { renderProfiles(allProfiles); return; }
-  const filtered = allProfiles.filter(p =>
-    Object.values(p).some(v => v && String(v).toLowerCase().includes(query))
+  const qry = q.toLowerCase().trim();
+  renderProfiles(
+    !qry
+      ? State.allProfiles
+      : State.allProfiles.filter(p =>
+          Object.values(p).some(v => v && String(v).toLowerCase().includes(qry))
+        )
   );
-  renderProfiles(filtered);
 }
 
-// ── Result view toggle (cards / table) ──────────────────────────────────
 function setResultView(view, btn) {
-  currentView = view;
+  State.currentView = view;
   document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-
-  if (view === 'cards') {
-    document.getElementById('profilesGridWrap').style.display = '';
-    document.getElementById('profilesTableWrap').style.display = 'none';
-  } else {
-    document.getElementById('profilesGridWrap').style.display = 'none';
-    document.getElementById('profilesTableWrap').style.display = '';
-    buildProfilesTable(allProfiles);
-  }
+  const gridWrap  = Q('#profilesGridWrap');
+  const tableWrap = Q('#profilesTableWrap');
+  if (gridWrap)  gridWrap.style.display  = view === 'cards' ? '' : 'none';
+  if (tableWrap) tableWrap.style.display = view === 'table' ? '' : 'none';
+  if (view === 'table') buildProfilesTable(State.allProfiles);
 }
 
 function buildProfilesTable(profiles) {
   if (!profiles.length) return;
-  const cols = Object.keys(profiles[0]);
-  const head = document.getElementById('profilesTableHead');
-  const body = document.getElementById('profilesTableBody');
+  const cols  = Object.keys(profiles[0]);
+  const thead = Q('#profilesTableHead');
+  const tbody = Q('#profilesTableBody');
+  if (!thead || !tbody) return;
 
-  head.innerHTML = `<tr><th class="td-idx">#</th>${cols.map(c => `<th>${c}</th>`).join('')}</tr>`;
-  body.innerHTML = profiles.map((p, i) =>
-    `<tr><td class="td-idx">${i+1}</td>${cols.map(c =>
-      `<td class="${!p[c] ? 'td-null' : ''}" title="${p[c] || ''}">${p[c] ?? '<em>—</em>'}</td>`
-    ).join('')}</tr>`
+  thead.innerHTML = '<tr><th class="td-idx">#</th>' +
+    cols.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr>';
+
+  tbody.innerHTML = profiles.map((p, i) =>
+    '<tr><td class="td-idx">' + (i+1) + '</td>' +
+    cols.map(c => {
+      const v = p[c]; const cls = v ? '' : 'td-null';
+      return `<td class="${cls}" title="${esc(String(v ?? ''))}">${esc(String(v ?? '—'))}</td>`;
+    }).join('') + '</tr>'
   ).join('');
 }
 
-// ── Excel Viewer ─────────────────────────────────────────────────────────
-let excelAllRows = [];
-let excelVisibleCols = new Set();
-let excelSortCol = null;
-let excelSortDir = 1;
-
+// ════════════════════════════════════════════════════════════════════════════
+//  EXCEL VIEWER
+// ════════════════════════════════════════════════════════════════════════════
 function buildExcelViewer(profiles) {
   if (!profiles.length) return;
-  excelAllRows = profiles;
+  State.excelRows = profiles;
   const cols = Object.keys(profiles[0]);
-  excelVisibleCols = new Set(cols);
+  State.excelCols = new Set(cols);
 
-  // Col filter chips
-  const filtersDiv = document.getElementById('colFilters');
-  filtersDiv.innerHTML = cols.map(c =>
-    `<span class="col-chip active" onclick="toggleExcelCol('${c}',this)" data-col="${c}">${c}</span>`
-  ).join('');
+  const cf = Q('#colFilters');
+  if (cf) {
+    cf.innerHTML = cols
+      .map(c => `<span class="col-chip active" data-col="${esc(c)}" onclick="toggleExcelCol('${esc(c)}',this)">${esc(c)}</span>`)
+      .join('');
+  }
 
-  document.getElementById('excelRowCount').textContent = `${profiles.length} rows`;
-  document.getElementById('excelTotalCount').textContent = profiles.length;
-  document.getElementById('excelColCount').textContent = cols.length;
+  const erc = Q('#excelRowCount');   if (erc) erc.textContent = profiles.length + ' rows';
+  const etc = Q('#excelTotalCount'); if (etc) etc.textContent = profiles.length;
+  const ecc = Q('#excelColCount');   if (ecc) ecc.textContent = cols.length;
 
   renderExcelTable(profiles, cols);
-  document.getElementById('excelViewer').style.display = 'flex';
-  document.getElementById('excelEmpty').style.display = 'none';
+
+  const ev = Q('#excelViewer'); if (ev) ev.style.display = 'flex';
+  const ee = Q('#excelEmpty');  if (ee) ee.style.display = 'none';
 }
 
 function renderExcelTable(rows, cols) {
-  if (!cols) cols = [...excelVisibleCols];
-  const thead = document.getElementById('excelHead');
-  const tbody = document.getElementById('excelBody');
+  if (!cols) cols = [...State.excelCols];
+  const head = Q('#excelHead');
+  const body = Q('#excelBody');
+  if (!head || !body) return;
 
-  thead.innerHTML = `<tr>
-    <th class="row-idx-th"></th>
-    ${cols.map(c => `<th onclick="sortExcel('${c}',this)" id="exc-th-${c}">${c}</th>`).join('')}
-  </tr>`;
+  head.innerHTML = '<tr><th class="row-idx-th"></th>' +
+    cols.map(c => `<th onclick="sortExcel('${esc(c)}',this)">${esc(c)}</th>`).join('') + '</tr>';
 
-  tbody.innerHTML = rows.map((row, i) =>
-    `<tr><td class="row-idx">${i+1}</td>${cols.map(c => {
+  body.innerHTML = rows.map((row, i) =>
+    '<tr><td class="row-idx">' + (i+1) + '</td>' +
+    cols.map(c => {
       const v = row[c];
-      if (!v) return `<td class="cell-null">—</td>`;
-      const isNum = !isNaN(v) && v !== '';
-      const long  = String(v).length > 24;
-      return `<td class="${isNum ? 'cell-num' : ''} ${long ? 'cell-long' : ''}" title="${v}">${String(v).slice(0,30)}${long ? '…' : ''}</td>`;
-    }).join('')}</tr>`
+      if (!v && v !== 0) return '<td class="cell-null">—</td>';
+      const sv  = String(v);
+      const isN = !isNaN(v) && sv !== '';
+      const long = sv.length > 24;
+      return `<td class="${isN ? 'cell-num ' : ''}${long ? 'cell-long' : ''}" title="${esc(sv)}">${esc(sv.slice(0,30))}${long ? '…' : ''}</td>`;
+    }).join('') + '</tr>'
   ).join('');
 
-  document.getElementById('excelVisibleCount').textContent = rows.length;
+  const evc = Q('#excelVisibleCount'); if (evc) evc.textContent = rows.length;
 }
 
 function toggleExcelCol(col, el) {
   el.classList.toggle('active');
-  if (excelVisibleCols.has(col)) excelVisibleCols.delete(col);
-  else excelVisibleCols.add(col);
-  renderExcelTable(excelAllRows, [...excelVisibleCols]);
+  if (State.excelCols.has(col)) State.excelCols.delete(col);
+  else State.excelCols.add(col);
+  renderExcelTable(State.excelRows, [...State.excelCols]);
 }
 
 function filterExcelRows(q) {
-  const query = q.toLowerCase().trim();
-  const rows = !query ? excelAllRows :
-    excelAllRows.filter(r => Object.values(r).some(v => v && String(v).toLowerCase().includes(query)));
-  renderExcelTable(rows, [...excelVisibleCols]);
+  const qry = q.toLowerCase().trim();
+  renderExcelTable(
+    !qry
+      ? State.excelRows
+      : State.excelRows.filter(r => Object.values(r).some(v => v && String(v).toLowerCase().includes(qry))),
+    [...State.excelCols]
+  );
 }
 
 function sortExcel(col, th) {
-  if (excelSortCol === col) excelSortDir *= -1;
-  else { excelSortCol = col; excelSortDir = 1; }
-  document.querySelectorAll('#excelHead th').forEach(t => t.className = t.className.replace(/sorted-(asc|desc)/g,''));
-  th.className += excelSortDir === 1 ? ' sorted-asc' : ' sorted-desc';
-  const sorted = [...excelAllRows].sort((a, b) => {
-    const av = a[col] ?? ''; const bv = b[col] ?? '';
-    if (!isNaN(av) && !isNaN(bv)) return (parseFloat(av) - parseFloat(bv)) * excelSortDir;
-    return String(av).localeCompare(String(bv)) * excelSortDir;
+  if (State.excelSortCol === col) State.excelSortDir *= -1;
+  else { State.excelSortCol = col; State.excelSortDir = 1; }
+
+  document.querySelectorAll('#excelHead th').forEach(t => {
+    t.className = t.className.replace(/\s*sorted-(asc|desc)/g,'');
   });
-  renderExcelTable(sorted, [...excelVisibleCols]);
+  th.className += State.excelSortDir === 1 ? ' sorted-asc' : ' sorted-desc';
+
+  const sorted = [...State.excelRows].sort((a, b) => {
+    const av = a[col] ?? '', bv = b[col] ?? '';
+    if (!isNaN(av) && !isNaN(bv) && av !== '' && bv !== '') {
+      return (parseFloat(av) - parseFloat(bv)) * State.excelSortDir;
+    }
+    return String(av).localeCompare(String(bv)) * State.excelSortDir;
+  });
+
+  renderExcelTable(sorted, [...State.excelCols]);
 }
 
 function resetExcelView() {
-  excelVisibleCols = new Set(Object.keys(excelAllRows[0] || {}));
+  if (!State.excelRows.length) return;
+  State.excelCols = new Set(Object.keys(State.excelRows[0]));
   document.querySelectorAll('.col-chip').forEach(c => c.classList.add('active'));
-  document.getElementById('excelFilter').value = '';
-  renderExcelTable(excelAllRows, [...excelVisibleCols]);
+  const ef = Q('#excelFilter'); if (ef) ef.value = '';
+  renderExcelTable(State.excelRows, [...State.excelCols]);
 }
 
-// ── JSON Preview ─────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  JSON / SQL PREVIEWS
+// ════════════════════════════════════════════════════════════════════════════
 function buildJSONPreview(profiles) {
   if (!profiles.length) return;
-  const json = JSON.stringify(profiles, null, 2);
-  document.getElementById('jsonPre').textContent = json;
-  document.getElementById('jsonRecordCount').textContent = `${profiles.length} records`;
-  document.getElementById('jsonViewerWrap').style.display = 'block';
+  const pre = Q('#jsonPre'); if (pre) pre.textContent = JSON.stringify(profiles, null, 2);
+  const rc  = Q('#jsonRecordCount'); if (rc) rc.textContent = profiles.length + ' records';
+  const vw  = Q('#jsonViewerWrap');  if (vw) vw.style.display = 'block';
 }
 
 function copyJSON() {
-  const txt = document.getElementById('jsonPre').textContent;
-  navigator.clipboard.writeText(txt).then(() => showToast('JSON copied to clipboard', 'success'));
+  const pre = Q('#jsonPre'); if (!pre) return;
+  navigator.clipboard.writeText(pre.textContent)
+    .then(() => showToast('JSON copied', 'success'))
+    .catch(() => showToast('Copy failed', 'error'));
 }
 
-// ── SQL Preview ───────────────────────────────────────────────────────────
 function buildSQLPreview(profiles) {
   if (!profiles.length) return;
-  const table = document.getElementById('tableInput').value || 'register';
+  const table = Q('#tableInput')?.value || 'register';
   const cols  = Object.keys(profiles[0]);
-  const lines = profiles.map((p, i) => {
-    const vals = cols.map(c => {
+
+  const lines = profiles.map(p => {
+    const values = cols.map(c => {
       const v = p[c];
       if (v === null || v === undefined || v === '') return 'NULL';
-      return `'${String(v).replace(/'/g,"''")}'`;
+      return "'" + String(v).replace(/'/g,"''") + "'";
     });
-    return `INSERT INTO \`${table}\` (${cols.map(c=>`\`${c}\``).join(', ')}) VALUES (${vals.join(', ')});`;
+    return `INSERT INTO \`${table}\` (${cols.map(c => '`'+c+'`').join(', ')}) VALUES (${values.join(', ')});`;
   });
-  const sql = `-- Generated by Matrimony AI Agent\n-- Table: ${table}\n-- Records: ${profiles.length}\n\n${lines.join('\n')}`;
-  document.getElementById('sqlPre').textContent = sql;
-  document.getElementById('sqlRecordCount').textContent = `${profiles.length} inserts`;
-  document.getElementById('sqlViewerWrap').style.display = 'block';
+
+  const sql =
+    `-- Generated by Matrimony AI Agent\n` +
+    `-- Table: ${table}\n` +
+    `-- Records: ${profiles.length}\n\n` +
+    lines.join('\n');
+
+  const pre = Q('#sqlPre'); if (pre) pre.textContent = sql;
+  const rc  = Q('#sqlRecordCount'); if (rc) rc.textContent = profiles.length + ' inserts';
+  const vw  = Q('#sqlViewerWrap');  if (vw) vw.style.display = 'block';
 }
 
 function copySQL() {
-  const txt = document.getElementById('sqlPre').textContent;
-  navigator.clipboard.writeText(txt).then(() => showToast('SQL copied to clipboard', 'success'));
+  const pre = Q('#sqlPre'); if (!pre) return;
+  navigator.clipboard.writeText(pre.textContent)
+    .then(() => showToast('SQL copied', 'success'))
+    .catch(() => showToast('Copy failed', 'error'));
 }
 
-// ── Export ───────────────────────────────────────────────────────────────
-async function exportData(fmt) {
-  if (!currentJobId) return showToast('No job to export', 'warn');
-  const table = document.getElementById('tableInput').value.trim() || 'register';
+// ════════════════════════════════════════════════════════════════════════════
+//  EXPORT
+// ════════════════════════════════════════════════════════════════════════════
+async function exportData(fmt, jobIdOverride) {
+  const jid = jobIdOverride || State.jobId;
+  if (!jid) return showToast('No job to export', 'warn');
+
+  const table = Q('#tableInput')?.value.trim() || 'register';
   try {
-    const res = await fetchJSON(`/api/export/${currentJobId}`, {
-      method: 'POST',
-      body: JSON.stringify({ format: fmt, table }),
-    });
+    const res = await apiPost('/api/export/' + jid, { format: fmt, table });
     if (!res.ok) {
-      const e = await res.json();
-      return showToast(e.error || 'Export failed', 'error');
+      const err = await res.json().catch(() => ({}));
+      return showToast(err.error || 'Export failed', 'error');
     }
     const blob = await res.blob();
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url;
-    a.download = `profiles.${fmt === 'excel' ? 'xlsx' : fmt}`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast(`${fmt.toUpperCase()} downloaded`, 'success');
+    const ext  = fmt === 'excel' ? 'xlsx' : fmt;
+    triggerDownload(blob, 'profiles.' + ext);
+    showToast(fmt.toUpperCase() + ' downloaded', 'success');
   } catch (err) {
     showToast('Export failed: ' + err.message, 'error');
   }
 }
 
-function exportExcel() { exportData('excel'); }
-
-// ── Logs ─────────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  LOGS
+// ════════════════════════════════════════════════════════════════════════════
 function renderLogs(logs) {
-  const newLogs = logs.slice(lastLogCount);
-  const box = document.getElementById('logBox');
-  const empty = document.getElementById('logsEmpty');
-  if (newLogs.length && empty) empty.style.display = 'none';
+  const newLogs   = logs.slice(State.lastLogCount);
+  const logsEmpty = Q('#logsEmpty');
+  if (newLogs.length && logsEmpty) logsEmpty.style.display = 'none';
 
-  newLogs.forEach(l => addLogEntry(l));
-  lastLogCount = logs.length;
+  newLogs.forEach(l => addLog(l));
+  State.lastLogCount = logs.length;
 
-  document.getElementById('logTotalCount').textContent = `${lastLogCount} entries`;
-  document.getElementById('logCount').textContent = lastLogCount;
+  const ltc = Q('#logTotalCount'); if (ltc) ltc.textContent = State.lastLogCount + ' entries';
+  const lc  = Q('#logCount');      if (lc)  lc.textContent  = State.lastLogCount;
 }
 
-function addLogEntry(l) {
-  const box = document.getElementById('logBox');
-  const entry = document.createElement('div');
-  const hidden = currentLogFilter !== 'ALL' && currentLogFilter !== l.level;
+function addLog(l) {
+  const box = Q('#logBox'); if (!box) return;
+  const hidden = State.logFilter !== 'ALL' && State.logFilter !== l.level;
+  const entry  = document.createElement('div');
   entry.className = `log-entry log-${l.level}${hidden ? ' log-hidden' : ''}`;
-  entry.innerHTML = `<span class="log-time">[${l.time}]</span><span class="log-level">${l.level}</span><span class="log-msg">${l.msg}</span>`;
+  entry.innerHTML =
+    `<span class="log-time">[${esc(l.time)}]</span>` +
+    `<span class="log-level">${esc(l.level)}</span>` +
+    `<span class="log-msg">${esc(l.msg)}</span>`;
   box.appendChild(entry);
 
-  logCounts[l.level] = (logCounts[l.level] || 0) + 1;
+  State.logCounts[l.level] = (State.logCounts[l.level] || 0) + 1;
   ['OK','WARN','ERROR','STEP'].forEach(k => {
-    const el = document.getElementById('lc' + k);
-    if (el) el.textContent = logCounts[k] || 0;
+    const el = Q('#lc' + k); if (el) el.textContent = State.logCounts[k] || 0;
   });
-  document.getElementById('logTimestamp').textContent = l.time || '';
 
-  if (document.getElementById('logAutoScroll')?.checked) {
-    box.scrollTop = box.scrollHeight;
-  }
+  const lt = Q('#logTimestamp'); if (lt) lt.textContent = l.time || '';
+
+  const autoScroll = Q('#logAutoScroll');
+  if (!autoScroll || autoScroll.checked) box.scrollTop = box.scrollHeight;
 }
 
 function setLogFilter(level, btn) {
-  currentLogFilter = level;
-  document.querySelectorAll('.log-filter-btn').forEach(b => {
-    b.className = 'log-filter-btn';
-  });
-  btn.className = `log-filter-btn active-${level}`;
+  State.logFilter = level;
+  document.querySelectorAll('.log-filter-btn').forEach(b => b.className = 'log-filter-btn');
+  btn.className = 'log-filter-btn active-' + level;
   document.querySelectorAll('.log-entry').forEach(e => {
     const lvl = [...e.classList].find(c => c.startsWith('log-') && c !== 'log-entry')?.replace('log-','');
     e.classList.toggle('log-hidden', level !== 'ALL' && lvl !== level);
@@ -887,133 +1573,227 @@ function setLogFilter(level, btn) {
 }
 
 function clearLogs() {
-  document.getElementById('logBox').innerHTML = '';
-  document.getElementById('logsEmpty').style.display = 'flex';
-  lastLogCount = 0;
-  logCounts = { OK: 0, WARN: 0, ERROR: 0, STEP: 0, INFO: 0 };
-  document.getElementById('logTotalCount').textContent = '0 entries';
+  const box = Q('#logBox'); if (box) box.innerHTML = '';
+  const le  = Q('#logsEmpty'); if (le) le.style.display = 'flex';
+  State.lastLogCount = 0;
+  State.logCounts    = { OK:0, WARN:0, ERROR:0, STEP:0, INFO:0, SKIP:0 };
+  const ltc = Q('#logTotalCount'); if (ltc) ltc.textContent = '0 entries';
 }
 
 function downloadLogs() {
   const entries = [...document.querySelectorAll('.log-entry')].map(e => e.textContent).join('\n');
-  const blob = new Blob([entries], { type: 'text/plain' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'processing-logs.txt';
-  a.click();
+  triggerDownload(new Blob([entries], { type:'text/plain' }), 'logs.txt');
 }
 
-// ── Chat ──────────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  CHAT
+// ════════════════════════════════════════════════════════════════════════════
 async function sendChat() {
-  const input = document.getElementById('chatInput');
-  const msg   = input.value.trim();
-  if (!msg) return;
+  const input = Q('#chatInput'); if (!input) return;
+  const msg   = input.value.trim(); if (!msg) return;
 
   appendMsg('user', msg);
   input.value = '';
-  document.getElementById('chatSend').disabled = true;
+
+  const sendBtn = Q('#chatSend'); if (sendBtn) sendBtn.disabled = true;
   const thinking = appendMsg('ai', '⏳ Thinking…');
 
   try {
-    const res  = await fetchJSON('/api/chat', {
-      method: 'POST',
-      body: JSON.stringify({
-        job_id: currentJobId,
-        message: msg,
-        api_key: document.getElementById('apiKey').value.trim(),
-      }),
+    const res  = await apiPost('/api/chat', {
+      job_id:  State.jobId,
+      message: msg,
+      api_key: Q('#apiKey')?.value.trim() || '',
     });
     const data = await res.json();
     thinking.textContent = data.reply || data.error || 'No response';
-  } catch (e) {
+  } catch {
     thinking.textContent = '⚠️ Network error';
+  } finally {
+    if (sendBtn) sendBtn.disabled = false;
   }
-  document.getElementById('chatSend').disabled = false;
 }
 
 function appendMsg(role, text) {
-  const box = document.getElementById('chatBox');
+  const box = Q('#chatBox'); if (!box) return null;
   const div = document.createElement('div');
-  div.className = `msg msg-${role}`;
+  div.className   = 'msg msg-' + role;
   div.textContent = text;
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
   return div;
 }
 
-// ── History ───────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  HISTORY
+// ════════════════════════════════════════════════════════════════════════════
 async function loadHistory() {
-  const list = document.getElementById('historyList');
-  list.innerHTML = '<div class="empty-state"><span class="empty-state-icon">⏳</span><p class="empty-state-title">Loading…</p></div>';
+  const list = Q('#historyList'); if (!list) return;
+  list.innerHTML = `<div class="empty-state"><span class="empty-state-icon">⏳</span><p class="empty-state-title">Loading…</p></div>`;
+
   try {
     const res  = await fetch('/api/uploads');
     const data = await res.json();
-    if (!data.length) {
-      list.innerHTML = '<div class="empty-state"><span class="empty-state-icon">📂</span><p class="empty-state-title">No uploads yet</p><p class="empty-state-sub">Process your first file to see history here</p></div>';
+
+    if (!res.ok || !Array.isArray(data) || !data.length) {
+      list.innerHTML = `<div class="empty-state"><span class="empty-state-icon">📂</span><p class="empty-state-title">No uploads yet</p><p class="empty-state-sub">Process your first file to see history here</p></div>`;
       return;
     }
-    const icons = { pdf:'📄', docx:'📝', doc:'📝', txt:'📋', image:'🖼️' };
-    list.innerHTML = data.map(u => `
-      <div class="hist-item">
-        <span class="hist-icon">${icons[u.file_type] || '📄'}</span>
-        <div class="hist-meta">
-          <div class="hist-name">${u.original_filename}</div>
-          <div class="hist-detail">${u.file_type.toUpperCase()} · ${formatSize(u.file_size_bytes||0)} · ${u.profiles_count} profiles · ${fmtDate(u.created_at)}</div>
-        </div>
-        <div class="hist-actions">
-          <span class="status-badge status-${u.status}">${u.status}</span>
-        </div>
-      </div>`).join('');
+
+    const typeIcons = { pdf:'📄', docx:'📝', doc:'📝', txt:'📋', image:'🖼️' };
+
+    list.innerHTML = data.map(u => {
+      const canExport = u.status === 'done' && u.profiles_count > 0;
+      const hasJob    = !!u.job_id;
+      return `
+        <div class="hist-item" id="hist-${esc(String(u.id))}">
+          <span class="hist-icon" aria-hidden="true">${typeIcons[u.file_type] || '📄'}</span>
+          <div class="hist-meta">
+            <div class="hist-name" title="${esc(u.original_filename)}">${esc(u.original_filename)}</div>
+            <div class="hist-detail">
+              ${esc(u.file_type.toUpperCase())} · ${formatSize(u.file_size_bytes || 0)} ·
+              ${esc(String(u.profiles_count))} profiles · ${fmtDate(u.created_at)}
+            </div>
+          </div>
+          <div class="hist-actions">
+            <span class="status-badge status-${esc(u.status)}">${esc(u.status)}</span>
+            ${canExport && hasJob ? `
+              <div class="dl-popup">
+                <button class="hist-btn download" data-menu="dlm-${esc(String(u.id))}" onclick="toggleHistDl(event,this)">⬇ Download ▾</button>
+                <div class="dl-popup-menu" id="dlm-${esc(String(u.id))}">
+                  <div class="dl-menu-item" data-job="${esc(u.job_id)}" data-fmt="excel" data-menu="dlm-${esc(String(u.id))}" onclick="histExportItem(this)">📊 Excel</div>
+                  <div class="dl-menu-item" data-job="${esc(u.job_id)}" data-fmt="csv"   data-menu="dlm-${esc(String(u.id))}" onclick="histExportItem(this)">📋 CSV</div>
+                  <div class="dl-menu-item" data-job="${esc(u.job_id)}" data-fmt="json"  data-menu="dlm-${esc(String(u.id))}" onclick="histExportItem(this)">{ } JSON</div>
+                  <div class="dl-menu-item" data-job="${esc(u.job_id)}" data-fmt="sql"   data-menu="dlm-${esc(String(u.id))}" onclick="histExportItem(this)">🗄 SQL</div>
+                </div>
+              </div>` : `<button class="hist-btn download" disabled>⬇ Download</button>`}
+            ${hasJob ? `<button class="hist-btn open" data-job="${esc(u.job_id)}" onclick="histOpen(this.dataset.job)">👁 Open</button>` : ''}
+            <button class="hist-btn delete" data-id="${esc(String(u.id))}" data-name="${esc(u.original_filename)}"
+                    onclick="histDelete(this.dataset.id, this.dataset.name)">✕ Delete</button>
+          </div>
+        </div>`;
+    }).join('');
+
   } catch {
-    list.innerHTML = '<div class="empty-state"><span class="empty-state-icon">⚠️</span><p class="empty-state-title">Failed to load history</p></div>';
+    list.innerHTML = `<div class="empty-state"><span class="empty-state-icon">⚠️</span><p class="empty-state-title">Failed to load history</p></div>`;
   }
 }
 
-// ── Tab switching ─────────────────────────────────────────────────────────
+function toggleHistDl(e, btn) {
+  e.stopPropagation();
+  const menuId = btn.dataset.menu;
+  const menu   = Q('#' + menuId); if (!menu) return;
+  const wasOpen = menu.classList.contains('open');
+  closeAllDlMenus();
+  if (!wasOpen) menu.classList.add('open');
+}
+function closeAllDlMenus() {
+  document.querySelectorAll('.dl-popup-menu').forEach(m => m.classList.remove('open'));
+}
+document.addEventListener('click', closeAllDlMenus);
+
+async function histExportItem(el) {
+  const jobId  = el.dataset.job;
+  const fmt    = el.dataset.fmt;
+  const menuId = el.dataset.menu;
+  const menu   = Q('#' + menuId); if (menu) menu.classList.remove('open');
+  showToast('Preparing ' + fmt.toUpperCase() + '…', 'info', 2000);
+  await exportData(fmt, jobId);
+}
+
+async function histOpen(jobId) {
+  if (!jobId) return;
+  try {
+    const res = await fetch('/api/status/' + encodeURIComponent(jobId));
+    const job = await res.json();
+    if (!res.ok || !job.profiles?.length) { showToast('No profile data available', 'warn'); return; }
+
+    State.jobId = jobId;
+    onJobDone(job);
+    _updateStatusCard(job);
+
+    const sc = Q('#statusCard'); if (sc) sc.classList.add('on');
+    const sf = Q('#statusFile'); if (sf) sf.textContent = job.filename || jobId;
+
+    switchTab('results');
+    showToast('Loaded ' + job.profiles.length + ' profiles from history', 'success');
+  } catch {
+    showToast('Failed to load job data', 'error');
+  }
+}
+
+async function histDelete(id, filename) {
+  if (!confirm(`Delete record for "${filename}"?\nThis removes it from history.`)) return;
+  try {
+    const res = await fetch('/api/uploads/' + encodeURIComponent(id), {
+      method: 'DELETE',
+      headers: { 'X-CSRFToken': window.CSRF || '' },
+    });
+    if (res.ok) {
+      const el = Q('#hist-' + id); if (el) el.remove();
+      showToast(`Deleted "${filename}"`, 'success');
+      if (!Q('.hist-item')) loadHistory();
+    } else {
+      const d = await res.json().catch(() => ({}));
+      showToast(d.error || 'Delete failed', 'error');
+    }
+  } catch { showToast('Network error', 'error'); }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════════════════════════════════════
 function switchTab(name) {
-  document.querySelectorAll('.ws-tab').forEach(t => t.classList.toggle('on', t.id === 'tab-' + name));
-  document.querySelectorAll('.ws-panel').forEach(p => p.classList.toggle('on', p.id === 'panel-' + name));
+  document.querySelectorAll('.ws-tab').forEach(t => {
+    const active = t.id === 'tab-' + name;
+    t.classList.toggle('on', active);
+    t.setAttribute('aria-selected', active);
+  });
+  document.querySelectorAll('.ws-panel').forEach(p => {
+    p.classList.toggle('on', p.id === 'panel-' + name);
+  });
   if (name === 'history') loadHistory();
 }
 
 function switchPrevTab(name, el) {
   document.querySelectorAll('.prev-tab').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
-  document.querySelectorAll('.prev-panel').forEach(p => p.classList.toggle('on', p.id === 'prevp-' + name));
+  document.querySelectorAll('.prev-panel').forEach(p => {
+    p.classList.toggle('on', p.id === 'prevp-' + name);
+  });
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  MISC HELPERS
+// ════════════════════════════════════════════════════════════════════════════
 function showError(msg) {
-  const el = document.getElementById('sidebarError');
-  el.textContent = '⚠ ' + msg;
-  el.classList.add('on');
+  const e = Q('#sidebarError');
+  if (e) { e.textContent = '⚠ ' + msg; e.classList.add('on'); }
   showToast(msg, 'error');
 }
-function hideError() {
-  document.getElementById('sidebarError').classList.remove('on');
-}
+function hideError() { const e = Q('#sidebarError'); if (e) e.classList.remove('on'); }
 
 function updateModelBadge() {
-  const v = document.getElementById('modelSel').value;
-  const short = v.split('-').slice(0,3).join('-');
-  document.getElementById('currentModelBadge').textContent = short;
-  document.getElementById('headerModelBadge').textContent  = short;
-  document.getElementById('modelBadge').textContent        = '⚡ ' + short;
+  const v   = Q('#modelSel')?.value || '';
+  const s   = _shortModel(v);
+  const cmb = Q('#currentModelBadge'); if (cmb) cmb.textContent = s;
+  const hmb = Q('#headerModelBadge');  if (hmb) hmb.textContent = s;
+  const mb  = Q('#modelBadge');        if (mb)  mb.textContent  = '⚡ ' + s;
 }
 
 function toggleApiKeyVisibility() {
-  const inp = document.getElementById('apiKey');
-  const btn = document.getElementById('pwToggleBtn');
-  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
-  else { inp.type = 'password'; btn.textContent = '👁'; }
+  const inp = Q('#apiKey');
+  const btn = Q('#pwToggleBtn'); if (!inp) return;
+  inp.type     = inp.type === 'password' ? 'text' : 'password';
+  if (btn) btn.textContent = inp.type === 'password' ? '👁' : '🙈';
 }
 
-function now() { return new Date().toTimeString().slice(0,8); }
-
-// ── Init ────────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
   loadHistory();
   updateModelBadge();
 });
+window.addEventListener('beforeunload', _stopPolling);
 </script>
 {% endblock %}
