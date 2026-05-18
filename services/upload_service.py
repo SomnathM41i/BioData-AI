@@ -279,7 +279,7 @@ class UploadService:
                         reason = error or "no valid profile"
                         _log(job, "SKIP", f"Page {page_num} — skipped ({reason})")
 
-            # Write JSON
+            # Write JSON output file
             with open(json_path, "w", encoding="utf-8") as jf:
                 json.dump(profiles, jf, indent=2, ensure_ascii=False)
 
@@ -289,8 +289,14 @@ class UploadService:
                  f"COMPLETE — {job['success']}/{total} profiles extracted "
                  f"({job['skipped']} skipped, {job['retries']} retries)")
 
-            self._update_db(upload_id, "done", job["success"],
-                            json.dumps(profiles, ensure_ascii=False))
+            # Persist BOTH the JSON blob AND the file paths so history
+            # can reload data after a server restart.
+            self._update_db(
+                upload_id, "done", job["success"],
+                output_json=json.dumps(profiles, ensure_ascii=False),
+                json_file_path=json_path,
+                sql_file_path=sql_path,
+            )
 
         except Exception as exc:
             _log(job, "ERROR", f"Fatal: {exc}")
@@ -301,8 +307,10 @@ class UploadService:
                 upload_id,
                 "failed",
                 len(profiles),
-                json.dumps(profiles, ensure_ascii=False) if profiles else None,
-                str(exc),
+                output_json=json.dumps(profiles, ensure_ascii=False) if profiles else None,
+                error=str(exc),
+                json_file_path=job.get("json_file"),
+                sql_file_path=job.get("sql_file"),
             )
             logger.exception("Unhandled error in background job %s", job_id)
 
@@ -413,19 +421,31 @@ class UploadService:
     @staticmethod
     def _update_db(upload_id: int, status: str, profiles_count: int,
                    output_json: str | None = None,
-                   error: str | None = None) -> None:
+                   error: str | None = None,
+                   json_file_path: str | None = None,
+                   sql_file_path: str | None = None) -> None:
         try:
             upload = db.session.get(Upload, upload_id)   # SQLAlchemy 2.x
             if not upload:
+                logger.warning("_update_db: upload %d not found", upload_id)
                 return
             upload.status           = status
             upload.profiles_count   = profiles_count
             if output_json is not None:
                 upload.processed_output = output_json
-            upload.error_message    = error
+            if error is not None:
+                upload.error_message = error
+            if json_file_path is not None:
+                upload.json_file_path = json_file_path
+            if sql_file_path is not None:
+                upload.sql_file_path = sql_file_path
             if status in ("done", "failed"):
                 upload.completed_at = datetime.now(timezone.utc)
             db.session.commit()
+            logger.debug(
+                "DB updated: upload=%d status=%s profiles=%d",
+                upload_id, status, profiles_count,
+            )
         except Exception as exc:
             logger.error("DB update failed for upload %d: %s", upload_id, exc)
             db.session.rollback()

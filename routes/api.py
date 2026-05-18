@@ -76,8 +76,16 @@ def _now_ts() -> str:
 
 
 def _job_from_upload(upload: Upload) -> dict:
-    """Rehydrate a completed/failed job from persisted upload history."""
+    """Rehydrate a completed/failed job from persisted upload history.
+
+    Priority order for profile data:
+      1. DB processed_output  (always up-to-date if worker completed)
+      2. json_file_path on disk  (output folder — fallback after server restart)
+      3. Empty list  (job failed before any profiles were extracted)
+    """
     profiles = []
+
+    # ── 1. Try DB blob first ──────────────────────────────────────────────────
     if upload.processed_output:
         try:
             parsed = json.loads(upload.processed_output)
@@ -86,32 +94,67 @@ def _job_from_upload(upload: Upload) -> dict:
         except (TypeError, json.JSONDecodeError):
             logger.warning("Invalid processed_output JSON for upload %s", upload.id)
 
+    # ── 2. Fall back to JSON file on disk if DB blob is empty ─────────────────
+    if not profiles and upload.json_file_path:
+        try:
+            with open(upload.json_file_path, "r", encoding="utf-8") as f:
+                disk_data = json.load(f)
+            if isinstance(disk_data, list) and disk_data:
+                profiles = disk_data
+                logger.info(
+                    "Rehydrated %d profiles from disk for upload %s",
+                    len(profiles), upload.id,
+                )
+                # Back-fill DB so next load is faster
+                try:
+                    upload.processed_output = json.dumps(profiles, ensure_ascii=False)
+                    upload.profiles_count   = len(profiles)
+                    from models.database import db as _db
+                    _db.session.commit()
+                except Exception as db_exc:
+                    logger.warning("Could not back-fill DB for upload %s: %s", upload.id, db_exc)
+        except FileNotFoundError:
+            logger.warning(
+                "JSON file not found for upload %s: %s",
+                upload.id, upload.json_file_path,
+            )
+        except (json.JSONDecodeError, OSError) as exc:
+            logger.warning(
+                "Could not read JSON file for upload %s: %s",
+                upload.id, exc,
+            )
+
     success = upload.profiles_count or len(profiles)
-    total = max(success, len(profiles), 1 if upload.status in ("done", "failed") else 0)
+    # Ensure profiles_count in DB matches reality
+    if len(profiles) > success:
+        success = len(profiles)
+
+    total    = max(success, 1 if upload.status in ("done", "failed") else 0)
     filename = upload.original_filename
+
     return {
-        "job_id": upload.job_id,
-        "user_id": upload.user_id,
-        "upload_id": upload.id,
-        "file": filename,
-        "filename": filename,
-        "file_type": upload.file_type,
-        "status": upload.status,
-        "pause_reason": None,
-        "total_pages": total,
-        "processed": total if upload.status in ("done", "failed") else 0,
-        "success": success,
-        "skipped": 0,
-        "retries": 0,
+        "job_id":        upload.job_id,
+        "user_id":       upload.user_id,
+        "upload_id":     upload.id,
+        "file":          filename,
+        "filename":      filename,
+        "file_type":     upload.file_type,
+        "status":        upload.status,
+        "pause_reason":  None,
+        "total_pages":   total,
+        "processed":     total if upload.status in ("done", "failed") else 0,
+        "success":       success,
+        "skipped":       0,
+        "retries":       0,
         "current_model": upload.model_used,
-        "profiles": profiles,
-        "sql_file": None,
-        "json_file": None,
-        "started_at": upload.created_at.isoformat() if upload.created_at else None,
+        "profiles":      profiles,
+        "sql_file":      upload.sql_file_path,
+        "json_file":     upload.json_file_path,
+        "started_at":    upload.created_at.isoformat() if upload.created_at else None,
         "logs": [{
             "level": "INFO",
-            "msg": f"Loaded saved upload history for {filename}",
-            "time": _now_ts(),
+            "msg":   f"Loaded from history: {filename} — {success} profile(s)",
+            "time":  _now_ts(),
         }],
     }
 
@@ -171,6 +214,85 @@ def _make_job(job_id: str, user_id: int, filename: str,
 @api_bp.route("/fields")
 def get_fields():
     return jsonify(DEFAULT_FIELDS)
+
+
+# ── Output folder sync ────────────────────────────────────────────────────────
+
+@api_bp.route("/sync-output", methods=["POST"])
+@login_required
+def sync_output():
+    """
+    Scan the output folder and back-fill json_file_path / processed_output
+    for uploads that have a matching JSON file but empty DB fields.
+
+    Called automatically on dashboard load and available as a manual action.
+    Returns { synced: N } — number of records updated.
+    """
+    output_dir = current_app.config.get("OUTPUT_FOLDER", "./output")
+    if not os.path.isdir(output_dir):
+        return jsonify({"synced": 0, "message": "Output folder not found"})
+
+    uploads = (
+        Upload.query
+        .filter_by(user_id=current_user.id)
+        .filter(Upload.status.in_(["done", "failed"]))
+        .all()
+    )
+
+    synced = 0
+    for upload in uploads:
+        # Skip if already has data
+        if upload.processed_output and upload.json_file_path:
+            continue
+
+        # Try to find a matching JSON file: <stem>_<timestamp>.json
+        stem = os.path.splitext(upload.original_filename)[0]
+        candidates = []
+        try:
+            for fname in os.listdir(output_dir):
+                if fname.startswith(stem) and fname.endswith(".json"):
+                    candidates.append(os.path.join(output_dir, fname))
+        except OSError:
+            continue
+
+        if not candidates:
+            continue
+
+        # Use the most recently modified file
+        candidates.sort(key=os.path.getmtime, reverse=True)
+        json_path = candidates[0]
+
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                profiles = json.load(f)
+            if not isinstance(profiles, list):
+                continue
+
+            upload.json_file_path   = json_path
+            upload.processed_output = json.dumps(profiles, ensure_ascii=False)
+            upload.profiles_count   = len(profiles)
+
+            # Also find matching SQL file
+            sql_path = json_path.replace(".json", ".sql")
+            if os.path.exists(sql_path):
+                upload.sql_file_path = sql_path
+
+            synced += 1
+        except (json.JSONDecodeError, OSError) as exc:
+            logger.warning("sync_output: could not read %s: %s", json_path, exc)
+
+    if synced:
+        try:
+            from models.database import db as _db
+            _db.session.commit()
+            logger.info("sync_output: synced %d upload(s) for user %s", synced, current_user.id)
+        except Exception as exc:
+            logger.error("sync_output: commit failed: %s", exc)
+            from models.database import db as _db
+            _db.session.rollback()
+            return jsonify({"error": "DB commit failed"}), 500
+
+    return jsonify({"synced": synced})
 
 
 # ── Upload ────────────────────────────────────────────────────────────────────
@@ -438,6 +560,28 @@ def list_uploads():
         .all()
     )
     return jsonify([u.to_dict() for u in uploads])
+
+
+@api_bp.route("/uploads/<int:upload_id>/profiles")
+@login_required
+def get_upload_profiles(upload_id: int):
+    """
+    Return the full profiles list for a specific upload.
+    Reads from DB blob first, then falls back to the JSON file on disk.
+    Used by the frontend to restore extracted data after a page refresh.
+    """
+    upload = Upload.query.filter_by(id=upload_id, user_id=current_user.id).first()
+    if not upload:
+        return jsonify({"error": "Upload not found"}), 404
+
+    job = _job_from_upload(upload)
+    return jsonify({
+        "profiles":      job["profiles"],
+        "profiles_count": len(job["profiles"]),
+        "status":        upload.status,
+        "job_id":        upload.job_id,
+        "filename":      upload.original_filename,
+    })
 
 
 @api_bp.route("/uploads/<int:upload_id>", methods=["DELETE"])

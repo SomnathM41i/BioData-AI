@@ -1192,6 +1192,8 @@ async function startUpload() {
 
   // Clear previous job
   _stopPolling();
+  _persistJob(null, null);       // clear persisted job on new upload start
+  _persistProfiles([]);          // clear old profiles
   State.lastLogCount = 0;
   State.logCounts    = { OK:0, WARN:0, ERROR:0, STEP:0, INFO:0, SKIP:0 };
 
@@ -1225,6 +1227,7 @@ async function startUpload() {
     }
 
     State.jobId = data.job_id;
+    _persistJob(data.job_id, State.selectedFile.name);  // survive refresh
     addLog({ level:'STEP', msg:`Job started: ${data.job_id} [${data.file_type}]`, time:ts() });
     _setStep('parse', 'active');
     Q('#po-ticker').textContent = 'File uploaded — beginning extraction…';
@@ -1291,6 +1294,11 @@ async function doPoll() {
         overlayFinish(false);
         showToast('Job failed. Check logs.', 'error');
       }
+    } else {
+      // Still processing — persist partial profiles so refresh can show progress
+      if (Array.isArray(job.profiles) && job.profiles.length) {
+        _persistProfiles(job.profiles);
+      }
     }
   } catch {
     // Network hiccup — silent, will retry next interval
@@ -1345,6 +1353,10 @@ function onJobDone(job) {
   State.allProfiles = job.profiles || [];
   const n = State.allProfiles.length;
 
+  // Persist so page refresh can restore results
+  _persistProfiles(State.allProfiles);
+  _persistJob(job.job_id || State.jobId, job.filename || '');
+
   const pc = Q('#profileCount'); if (pc) pc.textContent = n;
   const ec = Q('#exportCount');  if (ec) ec.textContent = n + ' profile' + (n !== 1 ? 's' : '') + ' ready';
 
@@ -1380,20 +1392,24 @@ function renderProfiles(profiles) {
   const badge = Q('#profileCountBadge'); if (badge) badge.textContent = profiles.length;
 
   profiles.forEach(p => {
+    if (!p || typeof p !== 'object') return;   // skip malformed entries
     const card    = document.createElement('div');
     card.className = 'profile-card';
 
-    const gender = (p.Gender || '').toUpperCase();
+    const gender = ((p.Gender || '') + '').toUpperCase();
     const avatar = (gender === 'FEMALE' || gender === 'F') ? '👩' : '👨';
     const fields = PROFILE_KEYS
-      .filter(k => p[k])
+      .filter(k => p[k] != null && p[k] !== '')
       .map(k => `<span class="pc-field"><span>${esc(k)}:</span> ${esc(String(p[k]))}</span>`)
       .join('');
+
+    const mobile = p.Mobile ? esc(String(p.Mobile)) : '';
+    const dob    = p.DOB    ? ' · ' + esc(String(p.DOB)) : '';
 
     card.innerHTML =
       `<div class="pc-avatar">${avatar}</div>` +
       `<div class="pc-name">${esc(p.Name || 'Unknown')}</div>` +
-      `<div class="pc-sub">${esc(p.Mobile || '')}${p.DOB ? ' · ' + esc(p.DOB) : ''}</div>` +
+      `<div class="pc-sub">${mobile}${dob}</div>` +
       `<div class="pc-fields">${fields || '<span class="pc-field" style="color:var(--muted)">No details extracted</span>'}</div>`;
 
     grid.appendChild(card);
@@ -1401,12 +1417,12 @@ function renderProfiles(profiles) {
 }
 
 function filterProfiles(q) {
-  const qry = q.toLowerCase().trim();
+  const qry = (q || '').toLowerCase().trim();
   renderProfiles(
     !qry
       ? State.allProfiles
       : State.allProfiles.filter(p =>
-          Object.values(p).some(v => v && String(v).toLowerCase().includes(qry))
+          p && Object.values(p).some(v => v != null && String(v).toLowerCase().includes(qry))
         )
   );
 }
@@ -1423,8 +1439,10 @@ function setResultView(view, btn) {
 }
 
 function buildProfilesTable(profiles) {
-  if (!profiles.length) return;
-  const cols  = Object.keys(profiles[0]);
+  if (!profiles || !profiles.length) return;
+  const validProfiles = profiles.filter(p => p && typeof p === 'object');
+  if (!validProfiles.length) return;
+  const cols  = Object.keys(validProfiles[0]);
   const thead = Q('#profilesTableHead');
   const tbody = Q('#profilesTableBody');
   if (!thead || !tbody) return;
@@ -1432,10 +1450,10 @@ function buildProfilesTable(profiles) {
   thead.innerHTML = '<tr><th class="td-idx">#</th>' +
     cols.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr>';
 
-  tbody.innerHTML = profiles.map((p, i) =>
+  tbody.innerHTML = validProfiles.map((p, i) =>
     '<tr><td class="td-idx">' + (i+1) + '</td>' +
     cols.map(c => {
-      const v = p[c]; const cls = v ? '' : 'td-null';
+      const v = p[c]; const cls = (v == null || v === '') ? 'td-null' : '';
       return `<td class="${cls}" title="${esc(String(v ?? ''))}">${esc(String(v ?? '—'))}</td>`;
     }).join('') + '</tr>'
   ).join('');
@@ -1445,9 +1463,11 @@ function buildProfilesTable(profiles) {
 //  EXCEL VIEWER
 // ════════════════════════════════════════════════════════════════════════════
 function buildExcelViewer(profiles) {
-  if (!profiles.length) return;
-  State.excelRows = profiles;
-  const cols = Object.keys(profiles[0]);
+  if (!profiles || !profiles.length) return;
+  const validProfiles = profiles.filter(p => p && typeof p === 'object');
+  if (!validProfiles.length) return;
+  State.excelRows = validProfiles;
+  const cols = Object.keys(validProfiles[0]);
   State.excelCols = new Set(cols);
 
   const cf = Q('#colFilters');
@@ -1499,11 +1519,11 @@ function toggleExcelCol(col, el) {
 }
 
 function filterExcelRows(q) {
-  const qry = q.toLowerCase().trim();
+  const qry = (q || '').toLowerCase().trim();
   renderExcelTable(
     !qry
       ? State.excelRows
-      : State.excelRows.filter(r => Object.values(r).some(v => v && String(v).toLowerCase().includes(qry))),
+      : State.excelRows.filter(r => r && Object.values(r).some(v => v != null && String(v).toLowerCase().includes(qry))),
     [...State.excelCols]
   );
 }
@@ -1540,7 +1560,7 @@ function resetExcelView() {
 //  JSON / SQL PREVIEWS
 // ════════════════════════════════════════════════════════════════════════════
 function buildJSONPreview(profiles) {
-  if (!profiles.length) return;
+  if (!profiles || !profiles.length) return;
   const pre = Q('#jsonPre'); if (pre) pre.textContent = JSON.stringify(profiles, null, 2);
   const rc  = Q('#jsonRecordCount'); if (rc) rc.textContent = profiles.length + ' records';
   const vw  = Q('#jsonViewerWrap');  if (vw) vw.style.display = 'block';
@@ -1554,11 +1574,13 @@ function copyJSON() {
 }
 
 function buildSQLPreview(profiles) {
-  if (!profiles.length) return;
+  if (!profiles || !profiles.length) return;
+  const validProfiles = profiles.filter(p => p && typeof p === 'object');
+  if (!validProfiles.length) return;
   const table = Q('#tableInput')?.value || 'register';
-  const cols  = Object.keys(profiles[0]);
+  const cols  = Object.keys(validProfiles[0]);
 
-  const lines = profiles.map(p => {
+  const lines = validProfiles.map(p => {
     const values = cols.map(c => {
       const v = p[c];
       if (v === null || v === undefined || v === '') return 'NULL';
@@ -1568,13 +1590,13 @@ function buildSQLPreview(profiles) {
   });
 
   const sql =
-    `-- Generated by Matrimony AI Agent\n` +
+    `-- Generated by BioData AI\n` +
     `-- Table: ${table}\n` +
-    `-- Records: ${profiles.length}\n\n` +
+    `-- Records: ${validProfiles.length}\n\n` +
     lines.join('\n');
 
   const pre = Q('#sqlPre'); if (pre) pre.textContent = sql;
-  const rc  = Q('#sqlRecordCount'); if (rc) rc.textContent = profiles.length + ' inserts';
+  const rc  = Q('#sqlRecordCount'); if (rc) rc.textContent = validProfiles.length + ' inserts';
   const vw  = Q('#sqlViewerWrap');  if (vw) vw.style.display = 'block';
 }
 
@@ -1715,9 +1737,10 @@ async function loadHistory() {
 
   try {
     const res  = await fetch('/api/uploads');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
-    if (!res.ok || !Array.isArray(data) || !data.length) {
+    if (!Array.isArray(data) || !data.length) {
       list.innerHTML = `<div class="empty-state">${iconSvg('folder', 'empty-state-icon ui-icon icon-xl')}<p class="empty-state-title">No uploads yet</p><p class="empty-state-sub">Process your first file to see history here</p></div>`;
       return;
     }
@@ -1725,20 +1748,23 @@ async function loadHistory() {
     const typeIcons = { pdf:'file', docx:'file-text', txt:'file-text', image:'image' };
 
     list.innerHTML = data.map(u => {
-      const canExport = u.profiles_count > 0;
-      const hasJob    = !!u.job_id;
+      const profileCount = u.profiles_count || 0;
+      const canExport    = profileCount > 0;
+      const hasJob       = !!u.job_id;
+      const statusClass  = u.status || 'unknown';
+      const fileType     = (u.file_type || 'file').toLowerCase();
       return `
         <div class="hist-item" id="hist-${esc(String(u.id))}">
-          ${iconSvg(typeIcons[u.file_type] || 'file', 'hist-icon ui-icon icon-lg')}
+          ${iconSvg(typeIcons[fileType] || 'file', 'hist-icon ui-icon icon-lg')}
           <div class="hist-meta">
-            <div class="hist-name" title="${esc(u.original_filename)}">${esc(u.original_filename)}</div>
+            <div class="hist-name" title="${esc(u.original_filename || '')}">${esc(u.original_filename || 'Unknown file')}</div>
             <div class="hist-detail">
-              ${esc(u.file_type.toUpperCase())} · ${formatSize(u.file_size_bytes || 0)} ·
-              ${esc(String(u.profiles_count))} profiles · ${fmtDate(u.created_at)}
+              ${esc((u.file_type || 'file').toUpperCase())} · ${formatSize(u.file_size_bytes || 0)} ·
+              ${esc(String(profileCount))} profile${profileCount !== 1 ? 's' : ''} · ${fmtDate(u.created_at)}
             </div>
           </div>
           <div class="hist-actions">
-            <span class="status-badge status-${esc(u.status)}">${esc(u.status)}</span>
+            <span class="status-badge status-${esc(statusClass)}">${esc(statusClass)}</span>
             ${canExport && hasJob ? `
               <div class="dl-popup">
                 <button class="hist-btn download" data-menu="dlm-${esc(String(u.id))}" onclick="toggleHistDl(event,this)">${iconSvg('download')} Download</button>
@@ -1750,14 +1776,15 @@ async function loadHistory() {
                 </div>
               </div>` : `<button class="hist-btn download" disabled>${iconSvg('download')} Download</button>`}
             ${hasJob ? `<button class="hist-btn open" data-job="${esc(u.job_id)}" onclick="histOpen(this.dataset.job)">${iconSvg('eye')} Open</button>` : ''}
-            <button class="hist-btn delete" data-id="${esc(String(u.id))}" data-name="${esc(u.original_filename)}"
+            <button class="hist-btn delete" data-id="${esc(String(u.id))}" data-name="${esc(u.original_filename || '')}"
                     onclick="histDelete(this.dataset.id, this.dataset.name)">${iconSvg('x')} Delete</button>
           </div>
         </div>`;
     }).join('');
 
-  } catch {
-    list.innerHTML = `<div class="empty-state">${iconSvg('alert', 'empty-state-icon ui-icon icon-xl')}<p class="empty-state-title">Failed to load history</p></div>`;
+  } catch (err) {
+    console.error('loadHistory error:', err);
+    list.innerHTML = `<div class="empty-state">${iconSvg('alert', 'empty-state-icon ui-icon icon-xl')}<p class="empty-state-title">Failed to load history</p><p class="empty-state-sub">${esc(err.message || 'Network error')}</p></div>`;
   }
 }
 
@@ -1786,12 +1813,36 @@ async function histExportItem(el) {
 async function histOpen(jobId) {
   if (!jobId) return;
   try {
+    showToast('Loading profile data…', 'info', 2000);
     const res = await fetch('/api/status/' + encodeURIComponent(jobId));
+    if (!res.ok) { showToast('No profile data available', 'warn'); return; }
     const job = await res.json();
-    if (!res.ok || !job.profiles?.length) { showToast('No profile data available', 'warn'); return; }
 
+    // If server returned no profiles (possible after restart with old DB),
+    // try the dedicated profiles endpoint which also reads from disk
+    if (!job.profiles || !job.profiles.length) {
+      // job.upload_id is present when rehydrated from _job_from_upload
+      const uid = job.upload_id;
+      if (uid) {
+        try {
+          const pr = await fetch('/api/uploads/' + uid + '/profiles');
+          if (pr.ok) {
+            const pd = await pr.json();
+            job.profiles = pd.profiles || [];
+          }
+        } catch (_) {}
+      }
+    }
+
+    if (!job.profiles || !job.profiles.length) {
+      showToast('No profile data available for this upload', 'warn');
+      return;
+    }
+
+    // Fully restore State so export works immediately
     State.jobId = jobId;
-    onJobDone(job);
+    _persistJob(jobId, job.filename || jobId);
+    onJobDone(job);     // sets State.allProfiles + enables export buttons + renders
     _updateStatusCard(job);
 
     const sc = Q('#statusCard'); if (sc) sc.classList.add('on');
@@ -1799,7 +1850,8 @@ async function histOpen(jobId) {
 
     switchTab('results');
     showToast('Loaded ' + job.profiles.length + ' profiles from history', 'success');
-  } catch {
+  } catch (err) {
+    console.error('histOpen error:', err);
     showToast('Failed to load job data', 'error');
   }
 }
@@ -1871,12 +1923,142 @@ function toggleApiKeyVisibility() {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
+//  STATE PERSISTENCE  — survive page refresh without losing data
+// ════════════════════════════════════════════════════════════════════════════
+
+const STORAGE_KEY_JOB     = 'biodata_active_job';    // {jobId, filename}
+const STORAGE_KEY_PROFILES = 'biodata_profiles';     // JSON array of profiles
+const STORAGE_KEY_API_KEY  = 'biodata_api_key';      // user's Groq key (session only)
+
+/** Save current job context so it survives a page refresh. */
+function _persistJob(jobId, filename) {
+  try {
+    if (jobId) {
+      sessionStorage.setItem(STORAGE_KEY_JOB, JSON.stringify({ jobId, filename }));
+    } else {
+      sessionStorage.removeItem(STORAGE_KEY_JOB);
+    }
+  } catch (_) {}
+}
+
+/** Save extracted profiles to sessionStorage (up to ~4 MB). */
+function _persistProfiles(profiles) {
+  try {
+    if (profiles && profiles.length) {
+      sessionStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(profiles));
+    } else {
+      sessionStorage.removeItem(STORAGE_KEY_PROFILES);
+    }
+  } catch (_) {}   // quota exceeded — silent, not fatal
+}
+
+/** Persist API key across same-browser-session refreshes (not across tabs/incognito). */
+function _persistApiKey(key) {
+  try {
+    if (key) sessionStorage.setItem(STORAGE_KEY_API_KEY, key);
+  } catch (_) {}
+}
+
+/** Restore persisted API key into the input field. */
+function _restoreApiKey() {
+  try {
+    const saved = sessionStorage.getItem(STORAGE_KEY_API_KEY);
+    const inp   = Q('#apiKey');
+    if (saved && inp && !inp.value) inp.value = saved;
+  } catch (_) {}
+}
+
+/**
+ * On page load: check if there's a persisted job.
+ * If yes, re-poll the server to get current state and restore the dashboard.
+ */
+async function _restoreSession() {
+  _restoreApiKey();
+
+  // Silently sync output folder → DB so history shows correct profile counts
+  try {
+    await fetch('/api/sync-output', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': window.CSRF || '' },
+    });
+  } catch (_) {}  // non-fatal
+
+  let saved;
+  try { saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY_JOB) || 'null'); }
+  catch (_) { saved = null; }
+
+  if (!saved || !saved.jobId) {
+    // No active session — just load history list
+    loadHistory();
+    return;
+  }
+
+  // Try to restore from server
+  try {
+    const res = await fetch('/api/status/' + encodeURIComponent(saved.jobId));
+    if (!res.ok) {
+      // Server doesn't know this job (restarted) — clear and show history
+      sessionStorage.removeItem(STORAGE_KEY_JOB);
+      loadHistory();
+      return;
+    }
+    const job = await res.json();
+
+    State.jobId = saved.jobId;
+
+    if (job.status === 'done' || job.status === 'failed') {
+      // Job finished — restore results
+      _updateStatusCard(job);
+
+      const sc = Q('#statusCard'); if (sc) sc.classList.add('on');
+      const sf = Q('#statusFile'); if (sf) sf.textContent = job.filename || saved.filename || saved.jobId;
+
+      if (job.profiles && job.profiles.length) {
+        onJobDone(job);
+        showToast(`Restored ${job.profiles.length} profile(s) from previous session`, 'info', 4000);
+      } else {
+        // Server has job but no profiles — try sessionStorage cache
+        let cached;
+        try { cached = JSON.parse(sessionStorage.getItem(STORAGE_KEY_PROFILES) || 'null'); }
+        catch (_) { cached = null; }
+        if (cached && cached.length) {
+          job.profiles = cached;
+          onJobDone(job);
+          showToast(`Restored ${cached.length} profile(s) from local cache`, 'info', 4000);
+        }
+      }
+    } else if (job.status === 'processing') {
+      // Job still running — resume polling
+      const sc = Q('#statusCard'); if (sc) sc.classList.add('on');
+      const sf = Q('#statusFile'); if (sf) sf.textContent = job.filename || saved.filename;
+      _setBtnLoading(true);
+      _updateStatusCard(job);
+      overlayOpen(job.filename || saved.filename);
+      State.pollTimer = setInterval(doPoll, POLL_INTERVAL_MS);
+      showToast('Reconnected to running job…', 'info', 3000);
+    }
+
+    loadHistory();
+  } catch (err) {
+    console.warn('Session restore failed:', err);
+    sessionStorage.removeItem(STORAGE_KEY_JOB);
+    loadHistory();
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
   hydrateIcons();
-  loadHistory();
   updateModelBadge();
+  _restoreSession();   // replaces bare loadHistory() — handles restoration first
+
+  // Persist API key whenever user types it
+  const apiKeyInput = Q('#apiKey');
+  if (apiKeyInput) {
+    apiKeyInput.addEventListener('input', () => _persistApiKey(apiKeyInput.value.trim()));
+  }
 });
 window.addEventListener('beforeunload', _stopPolling);
 </script>

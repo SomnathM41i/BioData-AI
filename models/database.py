@@ -75,6 +75,10 @@ class Upload(db.Model):
     profiles_count    = db.Column(db.Integer, default=0)
     error_message     = db.Column(db.Text, nullable=True)
 
+    # Output file paths — persisted so dashboard can re-read them after restart
+    json_file_path    = db.Column(db.Text, nullable=True)
+    sql_file_path     = db.Column(db.Text, nullable=True)
+
     created_at        = db.Column(db.DateTime(timezone=True), default=utcnow)
     updated_at        = db.Column(db.DateTime(timezone=True), default=utcnow, onupdate=utcnow)
     completed_at      = db.Column(db.DateTime(timezone=True), nullable=True)
@@ -89,6 +93,8 @@ class Upload(db.Model):
             "status": self.status,
             "model_used": self.model_used,
             "profiles_count": self.profiles_count,
+            "json_file_path": self.json_file_path,
+            "sql_file_path": self.sql_file_path,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
         }

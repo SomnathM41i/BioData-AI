@@ -98,6 +98,13 @@ def create_app(config_class=None):
         db.create_all()
         logger.info("Database tables verified/created.")
 
+        # Auto-run schema migrations (safe to re-run; checks column existence)
+        try:
+            from migrations.add_output_file_paths import run as _migrate_output_paths
+            _migrate_output_paths()
+        except Exception as _mig_exc:
+            logger.warning("Migration add_output_file_paths skipped: %s", _mig_exc)
+
     return app
 
 
