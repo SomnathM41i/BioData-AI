@@ -31,7 +31,7 @@ MIME_WHITELIST = {
 EXT_TO_CATEGORY = {
     "jpg": "image", "jpeg": "image", "png": "image", "gif": "image", "webp": "image",
     "pdf": "pdf",
-    "docx": "docx", "doc": "docx",
+    "docx": "docx",
     "txt": "txt",
 }
 
@@ -64,6 +64,10 @@ class StorageService:
         self.backend      = config.get("STORAGE_BACKEND", "local")
         self.upload_dir   = Path(config.get("UPLOAD_FOLDER", "./input"))
         self.output_dir   = Path(config.get("OUTPUT_FOLDER", "./output"))
+        self.allowed_extensions = {
+            str(ext).strip().lower()
+            for ext in config.get("ALLOWED_EXTENSIONS", EXT_TO_CATEGORY.keys())
+        }
         self.s3_bucket    = config.get("AWS_S3_BUCKET", "")
         self.s3_region    = config.get("AWS_S3_REGION", "us-east-1")
         self._ensure_dirs()
@@ -84,6 +88,11 @@ class StorageService:
             raise StorageError("File has no extension.")
 
         ext = filename.rsplit(".", 1)[-1].lower()
+        if ext not in self.allowed_extensions:
+            raise StorageError(f"File type '.{ext}' is not allowed.")
+        if ext == "doc":
+            raise StorageError("Legacy .doc files are not supported. Please upload .docx, PDF, TXT, or an image.")
+
         category = EXT_TO_CATEGORY.get(ext)
         if not category:
             raise StorageError(f"File type '.{ext}' is not allowed.")

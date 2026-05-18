@@ -23,13 +23,13 @@ Endpoints:
 import io
 import json
 import logging
+import os
 import tempfile
-import threading
-import time
 from datetime import datetime
 
 from flask import (
-    Blueprint, request, jsonify, send_file, Response, current_app
+    Blueprint, request, jsonify, send_file, Response, current_app,
+    after_this_request
 )
 from flask_login import login_required, current_user
 
@@ -46,7 +46,7 @@ api_bp = Blueprint("api", __name__, url_prefix="/api")
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _get_upload_service() -> UploadService:
-    return UploadService(current_app.config)
+    return UploadService(current_app.config, current_app._get_current_object())
 
 
 def _get_job_for_current_user(job_id: str):
@@ -56,16 +56,64 @@ def _get_job_for_current_user(job_id: str):
     Using 404 for both missing and unauthorised to avoid leaking job existence.
     """
     job = jobs.get(job_id)
-    if not job:
+    if job and job.get("user_id") != current_user.id:
         return None, (jsonify({"error": "Job not found"}), 404)
-    if job.get("user_id") != current_user.id:
+    if job:
+        return job, None
+
+    upload = Upload.query.filter_by(job_id=job_id, user_id=current_user.id).first()
+    if not upload:
         return None, (jsonify({"error": "Job not found"}), 404)
+
+    job = _job_from_upload(upload)
+    jobs[job_id] = job
     return job, None
 
 
 def _now_ts() -> str:
     """Current time as HH:MM:SS string — matches frontend ts() format."""
     return datetime.now().strftime("%H:%M:%S")
+
+
+def _job_from_upload(upload: Upload) -> dict:
+    """Rehydrate a completed/failed job from persisted upload history."""
+    profiles = []
+    if upload.processed_output:
+        try:
+            parsed = json.loads(upload.processed_output)
+            if isinstance(parsed, list):
+                profiles = parsed
+        except (TypeError, json.JSONDecodeError):
+            logger.warning("Invalid processed_output JSON for upload %s", upload.id)
+
+    success = upload.profiles_count or len(profiles)
+    total = max(success, len(profiles), 1 if upload.status in ("done", "failed") else 0)
+    filename = upload.original_filename
+    return {
+        "job_id": upload.job_id,
+        "user_id": upload.user_id,
+        "upload_id": upload.id,
+        "file": filename,
+        "filename": filename,
+        "file_type": upload.file_type,
+        "status": upload.status,
+        "pause_reason": None,
+        "total_pages": total,
+        "processed": total if upload.status in ("done", "failed") else 0,
+        "success": success,
+        "skipped": 0,
+        "retries": 0,
+        "current_model": upload.model_used,
+        "profiles": profiles,
+        "sql_file": None,
+        "json_file": None,
+        "started_at": upload.created_at.isoformat() if upload.created_at else None,
+        "logs": [{
+            "level": "INFO",
+            "msg": f"Loaded saved upload history for {filename}",
+            "time": _now_ts(),
+        }],
+    }
 
 
 def _make_job(job_id: str, user_id: int, filename: str,
@@ -275,6 +323,15 @@ def export(job_id: str):
             with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
                 tmp_path = tmp.name
             to_excel(profiles, fields=fields, output_path=tmp_path)
+
+            @after_this_request
+            def cleanup_excel_file(response):
+                try:
+                    os.remove(tmp_path)
+                except OSError:
+                    logger.warning("Could not remove temporary export file: %s", tmp_path)
+                return response
+
             return send_file(
                 tmp_path, as_attachment=True,
                 download_name=f"{base}.xlsx",
@@ -317,12 +374,16 @@ def chat():
         return jsonify({"error": "API key is required"}), 400
 
     profiles: list = []
+    history_key = f"user:{current_user.id}"
     if job_id:
-        job = jobs.get(job_id)
-        if job and job.get("user_id") == current_user.id:
+        job, err = _get_job_for_current_user(job_id)
+        if err:
+            return err
+        history_key = job_id
+        if job:
             profiles = job.get("profiles", [])
 
-    history = chat_histories.get(job_id, [])
+    history = chat_histories.get(history_key, [])
 
     # Privacy-safe profile context — exclude mobile/email PII from LLM prompt
     EXCLUDED_KEYS = {"Mobile", "Phone", "Email", "mobile", "phone", "email"}
@@ -356,7 +417,7 @@ def chat():
         reply = resp.choices[0].message.content
         history.append({"role": "user",      "content": message})
         history.append({"role": "assistant", "content": reply})
-        chat_histories[job_id] = history
+        chat_histories[history_key] = history
         return jsonify({"reply": reply})
 
     except Exception as exc:

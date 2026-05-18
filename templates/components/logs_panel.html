@@ -122,7 +122,7 @@
   <!-- Toolbar -->
   <div class="logs-toolbar">
     <div class="logs-title">
-      <span>📋</span>
+      <span class="ui-icon" data-icon="list"></span>
       Processing Logs
       <span class="badge badge-muted" id="logTotalCount">0 entries</span>
     </div>
@@ -131,8 +131,8 @@
         <input type="checkbox" id="logAutoScroll" checked style="accent-color:var(--accent)">
         Auto-scroll
       </label>
-      <button class="btn btn-ghost btn-xs" onclick="clearLogs()">✕ Clear</button>
-      <button class="btn btn-secondary btn-xs" onclick="downloadLogs()">⬇ Download</button>
+      <button class="btn btn-ghost btn-xs" onclick="clearLogs()"><span class="ui-icon" data-icon="x"></span> Clear</button>
+      <button class="btn btn-secondary btn-xs" onclick="downloadLogs()"><span class="ui-icon" data-icon="download"></span> Download</button>
     </div>
   </div>
 
@@ -149,7 +149,7 @@
   <!-- Log entries -->
   <div class="log-box" id="logBox">
     <div class="empty-state" id="logsEmpty" style="padding:24px">
-      <span class="empty-state-icon">📋</span>
+      <span class="empty-state-icon ui-icon icon-xl" data-icon="list"></span>
       <p class="empty-state-title">No logs yet</p>
       <p class="empty-state-sub">Processing logs will appear here in real-time</p>
     </div>
@@ -158,10 +158,10 @@
   <!-- Footer counts -->
   <div class="logs-footer">
     <div class="log-count-display">
-      <span class="lc-item" style="color:var(--green)"><span>•</span> <span id="lcOK">0</span> OK</span>
-      <span class="lc-item" style="color:var(--accent)"><span>•</span> <span id="lcWARN">0</span> Warn</span>
-      <span class="lc-item" style="color:var(--red)"><span>•</span> <span id="lcERROR">0</span> Error</span>
-      <span class="lc-item" style="color:var(--blue)"><span>•</span> <span id="lcSTEP">0</span> Step</span>
+      <span class="lc-item" style="color:var(--green)"><span class="pulse" aria-hidden="true"></span> <span id="lcOK">0</span> OK</span>
+      <span class="lc-item" style="color:var(--accent)"><span class="pulse" aria-hidden="true"></span> <span id="lcWARN">0</span> Warn</span>
+      <span class="lc-item" style="color:var(--red)"><span class="pulse" aria-hidden="true"></span> <span id="lcERROR">0</span> Error</span>
+      <span class="lc-item" style="color:var(--blue)"><span class="pulse" aria-hidden="true"></span> <span id="lcSTEP">0</span> Step</span>
     </div>
     <span id="logTimestamp">—</span>
   </div>

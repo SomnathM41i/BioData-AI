@@ -58,8 +58,9 @@ def _log(job: dict, level: str, msg: str) -> None:
 
 class UploadService:
 
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, app=None):
         self.config  = config
+        self.app     = app
         self.storage = StorageService(config)
 
     # ── Public entry point ────────────────────────────────────────────────────
@@ -118,6 +119,7 @@ class UploadService:
             "user_id":       user_id,          # ← THE FIX
             "upload_id":     upload.id,
             "file":          meta["original_filename"],
+            "filename":      meta["original_filename"],
             "file_type":     meta["category"],
             # Status — "processing" so JS `status === 'processing'` matches
             "status":        "processing",
@@ -183,7 +185,7 @@ class UploadService:
         }
 
         threading.Thread(
-            target=self._process_async,
+            target=self._process_async_with_context,
             args=(pages, cfg, job_id, upload.id),
             daemon=True,
             name=f"worker-{job_id}",
@@ -193,6 +195,15 @@ class UploadService:
         return {"job_id": job_id, "upload_id": upload.id, "file_type": meta["category"]}
 
     # ── Background worker ─────────────────────────────────────────────────────
+
+    def _process_async_with_context(self, pages: list, config: dict,
+                                    job_id: str, upload_id: int) -> None:
+        if self.app is None:
+            self._process_async(pages, config, job_id, upload_id)
+            return
+
+        with self.app.app_context():
+            self._process_async(pages, config, job_id, upload_id)
 
     def _process_async(self, pages: list, config: dict,
                        job_id: str, upload_id: int) -> None:
@@ -257,6 +268,12 @@ class UploadService:
                         job["success"]  += 1
                         job["profiles"]  = list(profiles)  # copy so poll sees update
                         _log(job, "OK",   f"Page {page_num} ✓ — {name}")
+                        self._update_db(
+                            upload_id,
+                            "processing",
+                            job["success"],
+                            json.dumps(profiles, ensure_ascii=False),
+                        )
                     else:
                         job["skipped"] += 1
                         reason = error or "no valid profile"
@@ -279,7 +296,14 @@ class UploadService:
             _log(job, "ERROR", f"Fatal: {exc}")
             job["status"]       = "failed"
             job["pause_reason"] = None
-            self._update_db(upload_id, "failed", 0, None, str(exc))
+            profiles = job.get("profiles", [])
+            self._update_db(
+                upload_id,
+                "failed",
+                len(profiles),
+                json.dumps(profiles, ensure_ascii=False) if profiles else None,
+                str(exc),
+            )
             logger.exception("Unhandled error in background job %s", job_id)
 
     # ── LLM call with real-time retry/pause tracking ──────────────────────────
@@ -396,7 +420,8 @@ class UploadService:
                 return
             upload.status           = status
             upload.profiles_count   = profiles_count
-            upload.processed_output = output_json
+            if output_json is not None:
+                upload.processed_output = output_json
             upload.error_message    = error
             if status in ("done", "failed"):
                 upload.completed_at = datetime.now(timezone.utc)

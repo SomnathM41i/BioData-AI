@@ -161,7 +161,7 @@ matrimony-ai-agent/
 | File Type | Processor | Method |
 |---|---|---|
 | `.pdf` | `PdfProcessor` | PyMuPDF text extraction |
-| `.docx` / `.doc` | `DocxProcessor` | python-docx paragraph extraction |
+| `.docx` | `DocxProcessor` | python-docx paragraph extraction |
 | `.txt` | `TxtProcessor` | Direct file read |
 | `.jpg` `.png` etc. | `ImageProcessor` | Tesseract OCR → LLM |
 

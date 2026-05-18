@@ -103,11 +103,11 @@
   <div class="job-status-header">
     <div class="job-status-left">
       <div class="spinner" id="statusSpinner" style="display:none"></div>
-      <span id="statusIconStatic" style="font-size:16px">📄</span>
+      <span id="statusIconStatic" class="ui-icon" data-icon="file"></span>
       <span class="job-filename" id="statusFile">—</span>
     </div>
     <div class="job-status-right">
-      <span class="badge badge-muted" id="modelBadge">⚡ llama-3.3-70b</span>
+      <span class="badge badge-muted" id="modelBadge"><span class="ui-icon" data-icon="activity"></span> llama-3.3-70b</span>
       <span class="status-badge status-pending" id="statusBadge">pending</span>
     </div>
   </div>
@@ -142,7 +142,7 @@
 
   <!-- Pause alert -->
   <div class="pause-alert" id="pauseBox">
-    <span>⏸</span>
+    <span class="ui-icon" data-icon="pause"></span>
     <span id="pauseReason">Rate limit hit — waiting…</span>
   </div>
 </div>

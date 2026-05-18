@@ -437,7 +437,7 @@ async function loadProfileHistory() {
 
 function renderHistTable(data) {
   const tbody = document.getElementById('histTableBody');
-  const icons = { pdf:'📄', docx:'📝', doc:'📝', txt:'📋', image:'🖼️' };
+  const icons = { pdf:'📄', docx:'📝', txt:'📋', image:'🖼️' };
 
   if (!data.length) {
     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:36px;color:var(--muted)">No uploads found</td></tr>';

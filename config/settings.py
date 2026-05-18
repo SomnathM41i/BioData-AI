@@ -51,7 +51,11 @@ class BaseConfig:
     MAX_CONTENT_LENGTH = int(os.getenv("MAX_UPLOAD_SIZE_MB", "50")) * 1024 * 1024
     UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", str(BASE_DIR / "input"))
     OUTPUT_FOLDER = os.getenv("OUTPUT_FOLDER", str(BASE_DIR / "output"))
-    ALLOWED_EXTENSIONS = set(os.getenv("ALLOWED_EXTENSIONS", "pdf,docx,doc,txt,jpg,jpeg,png").split(","))
+    ALLOWED_EXTENSIONS = {
+        ext.strip().lower()
+        for ext in os.getenv("ALLOWED_EXTENSIONS", "pdf,docx,txt,jpg,jpeg,png").split(",")
+        if ext.strip()
+    }
 
     # ── Storage backend
     STORAGE_BACKEND = os.getenv("STORAGE_BACKEND", "local")  # "local" | "s3"

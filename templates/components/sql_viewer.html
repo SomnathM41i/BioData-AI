@@ -87,7 +87,7 @@
 <div class="sql-viewer-wrap" id="sqlViewerWrap" style="display:none">
   <div class="sql-viewer-toolbar">
     <div class="sql-viewer-title">
-      <span>🗄</span>
+      <span class="ui-icon" data-icon="database"></span>
       SQL Output
       <span class="badge badge-amber" id="sqlRecordCount">0 inserts</span>
     </div>
@@ -97,7 +97,7 @@
         <span id="sqlTableName">register</span>
       </div>
       <button class="btn btn-ghost btn-xs" onclick="copySQL()" id="copySqlBtn">⧉ Copy</button>
-      <button class="btn btn-secondary btn-xs" onclick="exportData('sql')">⬇ Download</button>
+      <button class="btn btn-secondary btn-xs" onclick="exportData('sql')"><span class="ui-icon" data-icon="download"></span> Download</button>
     </div>
   </div>
   <pre class="sql-pre" id="sqlPre">-- No data yet. Process a file to generate SQL.</pre>

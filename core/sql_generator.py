@@ -1,13 +1,18 @@
 from datetime import datetime
 
+
+def _quote_identifier(name):
+    return f"`{str(name).replace('`', '``')}`"
+
+
 def to_sql_insert(profile, table="register"):
     cols, vals = [], []
     for k, v in profile.items():
         if v is not None:
-            cols.append(f"`{k}`")
+            cols.append(_quote_identifier(k))
             escaped = str(v).replace("'", "''")
             vals.append(f"'{escaped}'")
-    return f"INSERT INTO `{table}` ({', '.join(cols)}) VALUES ({', '.join(vals)});"
+    return f"INSERT INTO {_quote_identifier(table)} ({', '.join(cols)}) VALUES ({', '.join(vals)});"
 
 def sql_file_header(source, total):
     return (

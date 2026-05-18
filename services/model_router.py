@@ -61,7 +61,7 @@ class PdfProcessor(BaseProcessor):
 
 
 class DocxProcessor(BaseProcessor):
-    display_name = "DOCX/DOC Processor (python-docx)"
+    display_name = "DOCX Processor (python-docx)"
 
     def extract_pages(self, file_path: str, max_chars: int = 5000):
         import docx as _docx

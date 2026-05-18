@@ -35,7 +35,7 @@
   box-shadow: 0 0 0 1px rgba(240,165,0,.15);
 }
 .type-card.active .type-icon { filter: drop-shadow(0 0 6px var(--accent)); }
-.type-icon  { font-size: 22px; line-height: 1; }
+.type-icon  { width: 22px; height: 22px; line-height: 1; }
 .type-label { font-size: 9px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); }
 .type-card.active .type-label { color: var(--accent); }
 
@@ -54,7 +54,7 @@
   background: rgba(240,165,0,.04);
 }
 .dropzone.over { transform: scale(1.01); }
-.dz-icon  { font-size: 28px; margin-bottom: 10px; display: block; }
+.dz-icon  { width: 28px; height: 28px; margin: 0 auto 10px; display: flex; }
 .dz-title { font-size: 12px; font-weight: 700; margin-bottom: 5px; }
 .dz-sub   { font-size: 10px; color: var(--muted); font-family: var(--mono); }
 .dz-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
@@ -70,7 +70,7 @@
   align-items: center;
 }
 .file-info.on { display: flex; }
-.file-info-icon { font-size: 22px; flex-shrink: 0; }
+.file-info-icon { width: 22px; height: 22px; flex-shrink: 0; color: var(--accent); }
 .file-info-meta { flex: 1; min-width: 0; }
 .file-info-name {
   font-size: 11px;
@@ -220,29 +220,29 @@ input[type=range]::-webkit-slider-thumb {
   <div class="card">
     <div class="card-header">
       <div class="card-header-left">
-        <span>📂</span>
+        <span class="ui-icon" data-icon="folder"></span>
         <h3>File Input</h3>
       </div>
     </div>
     <div class="card-body">
       <div class="type-selector">
         <div class="type-card active" onclick="setType('image',this)" id="type-image">
-          <span class="type-icon">🖼️</span>
+          <span class="type-icon ui-icon" data-icon="image"></span>
           <span class="type-label">Image</span>
         </div>
         <div class="type-card" onclick="setType('pdf',this)" id="type-pdf">
-          <span class="type-icon">📄</span>
+          <span class="type-icon ui-icon" data-icon="file"></span>
           <span class="type-label">PDF</span>
         </div>
         <div class="type-card" onclick="setType('doc',this)" id="type-doc">
-          <span class="type-icon">📝</span>
+          <span class="type-icon ui-icon" data-icon="file-text"></span>
           <span class="type-label">DOC</span>
         </div>
       </div>
 
       <!-- Drop Zone -->
       <div class="dropzone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-        <span class="dz-icon" id="dzIcon">🖼️</span>
+        <span class="dz-icon ui-icon" id="dzIcon" data-icon="image"></span>
         <div class="dz-title">Drop file here</div>
         <div class="dz-sub" id="dzAccept">JPG, PNG, JPEG · max 50MB</div>
         <input type="file" id="fileInput" class="dz-input" accept="image/*"
@@ -251,12 +251,12 @@ input[type=range]::-webkit-slider-thumb {
 
       <!-- File Info -->
       <div class="file-info" id="fileInfo">
-        <span class="file-info-icon" id="fileTypeIcon">🖼️</span>
+        <span class="file-info-icon ui-icon" id="fileTypeIcon" data-icon="image"></span>
         <div class="file-info-meta">
           <div class="file-info-name" id="fileName">—</div>
           <div class="file-info-size" id="fileSize">—</div>
         </div>
-        <button class="file-remove" onclick="clearFile()">✕</button>
+        <button class="file-remove" onclick="clearFile()" aria-label="Remove file"><span class="ui-icon" data-icon="x"></span></button>
       </div>
 
       <!-- Text preview -->
@@ -268,7 +268,7 @@ input[type=range]::-webkit-slider-thumb {
   <div class="card">
     <div class="card-header">
       <div class="card-header-left">
-        <span>⚙️</span>
+        <span class="ui-icon" data-icon="settings"></span>
         <h3>Processing Settings</h3>
       </div>
       <span class="badge badge-purple" id="currentModelBadge">llama-3.3-70b</span>
@@ -280,7 +280,7 @@ input[type=range]::-webkit-slider-thumb {
         <label class="option-label">Groq API Key</label>
         <div class="input-pw-wrap">
           <input type="password" id="apiKey" class="input" placeholder="gsk_…" autocomplete="off">
-          <button class="pw-toggle" onclick="toggleApiKeyVisibility()" id="pwToggleBtn" title="Show/hide">👁</button>
+          <button class="pw-toggle" onclick="toggleApiKeyVisibility()" id="pwToggleBtn" title="Show or hide API key"><span class="ui-icon" data-icon="eye"></span></button>
         </div>
       </div>
 
@@ -318,7 +318,7 @@ input[type=range]::-webkit-slider-thumb {
   <!-- Process Button -->
   <div class="process-btn-wrap">
     <button class="btn btn-primary" id="uploadBtn" disabled onclick="startUpload()">
-      <span id="uploadBtnIcon">⚡</span>
+      <span id="uploadBtnIcon" class="ui-icon" data-icon="activity"></span>
       <span id="uploadBtnText">Process File</span>
     </button>
   </div>

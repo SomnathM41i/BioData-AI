@@ -168,7 +168,7 @@
   <!-- Toolbar -->
   <div class="excel-toolbar">
     <div class="excel-toolbar-left">
-      <span style="font-size:18px">📊</span>
+      <span class="ui-icon icon-lg" data-icon="table"></span>
       <div class="excel-title">
         Extracted Data
         <span class="badge badge-green" id="excelRowCount">0 rows</span>
@@ -176,9 +176,9 @@
     </div>
     <div class="excel-toolbar-right">
       <input type="text" class="input" style="width:200px;padding:5px 10px;font-size:11px"
-             placeholder="🔍 Filter rows…" id="excelFilter" oninput="filterExcelRows(this.value)">
+             placeholder="Filter rows..." id="excelFilter" oninput="filterExcelRows(this.value)">
       <button class="btn btn-secondary btn-sm" onclick="exportExcel()">
-        ⬇ Export XLSX
+        <span class="ui-icon" data-icon="download"></span> Export XLSX
       </button>
     </div>
   </div>
@@ -201,6 +201,6 @@
       &nbsp;·&nbsp;
       <span id="excelColCount">0</span> columns
     </div>
-    <button class="btn btn-ghost btn-xs" onclick="resetExcelView()">↺ Reset</button>
+    <button class="btn btn-ghost btn-xs" onclick="resetExcelView()"><span class="ui-icon" data-icon="refresh"></span> Reset</button>
   </div>
 </div>

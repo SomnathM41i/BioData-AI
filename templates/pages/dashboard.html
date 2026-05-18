@@ -538,6 +538,33 @@
 }
 .proc-foot-info  { font-size: 10px; color: var(--muted); font-family: var(--mono); }
 .proc-foot-btns  { display: flex; gap: 8px; }
+
+.ui-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: currentColor;
+  vertical-align: middle;
+}
+.ui-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+.icon-lg { width: 22px; height: 22px; }
+.icon-xl { width: 28px; height: 28px; }
+.ui-icon[data-icon="loader"] svg { animation: spin .8s linear infinite; }
+.lc-item .pulse {
+  background: currentColor;
+  animation: none;
+}
 </style>
 {% endblock %}
 
@@ -551,7 +578,7 @@
 
     <!-- Header -->
     <div class="proc-head">
-      <span class="proc-head-ico" aria-hidden="true">⚡</span>
+      <span class="proc-head-ico ui-icon icon-lg" data-icon="activity" aria-hidden="true"></span>
       <div class="proc-head-text">
         <div class="proc-head-title">Processing File</div>
         <div class="proc-head-sub" id="po-filename">—</div>
@@ -595,19 +622,19 @@
     <!-- Step pipeline -->
     <div class="proc-steps" aria-hidden="true">
       <div class="proc-step s-active" id="ps-upload">
-        <div class="s-dot">📤</div><span class="s-label">Upload</span>
+        <div class="s-dot"><span class="ui-icon" data-icon="upload"></span></div><span class="s-label">Upload</span>
       </div>
       <div class="proc-step" id="ps-parse">
-        <div class="s-dot">🔍</div><span class="s-label">Parse</span>
+        <div class="s-dot"><span class="ui-icon" data-icon="search"></span></div><span class="s-label">Parse</span>
       </div>
       <div class="proc-step" id="ps-extract">
-        <div class="s-dot">🤖</div><span class="s-label">Extract</span>
+        <div class="s-dot"><span class="ui-icon" data-icon="bot"></span></div><span class="s-label">Extract</span>
       </div>
       <div class="proc-step" id="ps-save">
-        <div class="s-dot">💾</div><span class="s-label">Save</span>
+        <div class="s-dot"><span class="ui-icon" data-icon="save"></span></div><span class="s-label">Save</span>
       </div>
       <div class="proc-step" id="ps-done">
-        <div class="s-dot">✅</div><span class="s-label">Done</span>
+        <div class="s-dot"><span class="ui-icon" data-icon="check"></span></div><span class="s-label">Done</span>
       </div>
     </div>
 
@@ -620,7 +647,7 @@
 
     <!-- Rate-limit / pause banner -->
     <div class="proc-pause-banner" id="po-pause-banner" aria-live="polite">
-      <span>⏸</span>
+      <span class="ui-icon" data-icon="pause" aria-hidden="true"></span>
       <span id="po-pause-reason">Rate limit hit — retrying…</span>
     </div>
 
@@ -633,9 +660,9 @@
     <div class="proc-foot">
       <div class="proc-foot-info" id="po-info">Job started — keep this window open</div>
       <div class="proc-foot-btns">
-        <button class="btn btn-ghost btn-xs" onclick="overlayViewLogs()">📋 Full Logs</button>
+        <button class="btn btn-ghost btn-xs" onclick="overlayViewLogs()"><span class="ui-icon" data-icon="list"></span> Full Logs</button>
         <button class="btn btn-primary btn-xs" id="po-done-btn" style="display:none"
-                onclick="overlayClose()">✓ View Results</button>
+                onclick="overlayClose()"><span class="ui-icon" data-icon="check"></span> View Results</button>
       </div>
     </div>
 
@@ -657,31 +684,31 @@
       <div class="ws-tabs" id="wsTabs" role="tablist">
         <button class="ws-tab on" id="tab-results" role="tab" aria-selected="true"
                 onclick="switchTab('results')">
-          <span class="tab-ico" aria-hidden="true">💍</span>
+          <span class="tab-ico ui-icon" data-icon="users" aria-hidden="true"></span>
           Results
           <span class="tab-count" id="profileCount">0</span>
         </button>
         <button class="ws-tab" id="tab-excel" role="tab" aria-selected="false"
                 onclick="switchTab('excel')">
-          <span class="tab-ico" aria-hidden="true">📊</span> Excel View
+          <span class="tab-ico ui-icon" data-icon="table" aria-hidden="true"></span> Excel View
         </button>
         <button class="ws-tab" id="tab-output" role="tab" aria-selected="false"
                 onclick="switchTab('output')">
-          <span class="tab-ico" aria-hidden="true">⬡</span> Export Output
+          <span class="tab-ico ui-icon" data-icon="braces" aria-hidden="true"></span> Export Output
         </button>
         <button class="ws-tab" id="tab-logs" role="tab" aria-selected="false"
                 onclick="switchTab('logs')">
-          <span class="tab-ico" aria-hidden="true">📋</span>
+          <span class="tab-ico ui-icon" data-icon="list" aria-hidden="true"></span>
           Logs
           <span class="tab-count" id="logCount">0</span>
         </button>
         <button class="ws-tab" id="tab-chat" role="tab" aria-selected="false"
                 onclick="switchTab('chat')">
-          <span class="tab-ico" aria-hidden="true">💬</span> AI Chat
+          <span class="tab-ico ui-icon" data-icon="message" aria-hidden="true"></span> AI Chat
         </button>
         <button class="ws-tab" id="tab-history" role="tab" aria-selected="false"
                 onclick="switchTab('history')">
-          <span class="tab-ico" aria-hidden="true">📂</span> History
+          <span class="tab-ico ui-icon" data-icon="folder" aria-hidden="true"></span> History
         </button>
       </div>
 
@@ -689,17 +716,17 @@
       <div class="ws-panel on" id="panel-results" role="tabpanel">
         <div class="export-row">
           <div class="export-left">
-            <span style="font-size:18px" aria-hidden="true">⬇</span>
+            <span class="ui-icon icon-lg" data-icon="download" aria-hidden="true"></span>
             <div>
               <div class="export-title">Export Extracted Data</div>
               <div class="export-count" id="exportCount">0 profiles ready</div>
             </div>
           </div>
           <div class="export-btns">
-            <button class="exp-btn excel" id="exp-excel" disabled onclick="exportData('excel')">📊 Excel</button>
+            <button class="exp-btn excel" id="exp-excel" disabled onclick="exportData('excel')"><span class="ui-icon" data-icon="table"></span> Excel</button>
             <button class="exp-btn json"  id="exp-json"  disabled onclick="exportData('json')">{ } JSON</button>
-            <button class="exp-btn sql"   id="exp-sql"   disabled onclick="exportData('sql')">🗄 SQL</button>
-            <button class="exp-btn csv"   id="exp-csv"   disabled onclick="exportData('csv')">📋 CSV</button>
+            <button class="exp-btn sql"   id="exp-sql"   disabled onclick="exportData('sql')"><span class="ui-icon" data-icon="database"></span> SQL</button>
+            <button class="exp-btn csv"   id="exp-csv"   disabled onclick="exportData('csv')"><span class="ui-icon" data-icon="file-text"></span> CSV</button>
           </div>
         </div>
         {% include 'components/results_table.html' %}
@@ -709,7 +736,7 @@
       <div class="ws-panel" id="panel-excel" role="tabpanel">
         {% include 'components/excel_viewer.html' %}
         <div class="empty-state" id="excelEmpty" style="padding:48px">
-          <span class="empty-state-icon">📊</span>
+          <span class="empty-state-icon ui-icon icon-xl" data-icon="table"></span>
           <p class="empty-state-title">No data to view</p>
           <p class="empty-state-sub">Process a file first</p>
         </div>
@@ -720,7 +747,7 @@
         <div class="preview-panel">
           <div class="preview-tabs">
             <button class="prev-tab on" onclick="switchPrevTab('json', this)">{ } JSON</button>
-            <button class="prev-tab"    onclick="switchPrevTab('sql',  this)">🗄 SQL</button>
+            <button class="prev-tab"    onclick="switchPrevTab('sql',  this)"><span class="ui-icon" data-icon="database"></span> SQL</button>
           </div>
           <div class="prev-panel on" id="prevp-json">{% include 'components/json_viewer.html' %}</div>
           <div class="prev-panel"    id="prevp-sql">{% include 'components/sql_viewer.html' %}</div>
@@ -736,13 +763,13 @@
       <div class="ws-panel" id="panel-chat" role="tabpanel">
         <div class="chat-wrap">
           <div class="chat-header">
-            <span aria-hidden="true">💬</span>
+            <span class="ui-icon" data-icon="message" aria-hidden="true"></span>
             AI Assistant
             <span class="badge badge-purple" style="margin-left:4px">LLaMA 3.1 8B</span>
           </div>
           <div class="chat-box" id="chatBox" aria-live="polite">
             <div class="msg msg-ai">
-              👋 Hi! I'm your matrimonial data assistant. Upload and process a file, then ask me
+              Hi, I am your matrimonial data assistant. Upload and process a file, then ask me
               anything about the extracted profiles.
             </div>
           </div>
@@ -756,7 +783,7 @@
               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
             ></textarea>
             <button class="btn btn-primary btn-sm" id="chatSend" onclick="sendChat()" style="flex-shrink:0">
-              ↑ Send
+              <span class="ui-icon" data-icon="send"></span> Send
             </button>
           </div>
         </div>
@@ -767,15 +794,15 @@
         <div class="card">
           <div class="card-header">
             <div class="card-header-left">
-              <span aria-hidden="true">📂</span>
+              <span class="ui-icon" data-icon="folder" aria-hidden="true"></span>
               <h3>Upload History</h3>
             </div>
-            <button class="btn btn-ghost btn-xs" onclick="loadHistory()">↺ Refresh</button>
+            <button class="btn btn-ghost btn-xs" onclick="loadHistory()"><span class="ui-icon" data-icon="refresh"></span> Refresh</button>
           </div>
           <div class="card-body">
             <div class="history-list" id="historyList">
               <div class="empty-state">
-                <span class="empty-state-icon">⏳</span>
+                <span class="empty-state-icon ui-icon icon-xl" data-icon="loader"></span>
                 <p class="empty-state-title">Loading…</p>
               </div>
             </div>
@@ -790,6 +817,48 @@
 
 {% block extra_scripts %}
 <script>
+const ICON_PATHS = {
+  activity: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  alert: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  bot: '<rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/><path d="M12 11V7"/><path d="M8 7h8"/>',
+  braces: '<path d="M8 3H6a2 2 0 0 0-2 2v3a2 2 0 0 1-2 2 2 2 0 0 1 2 2v3a2 2 0 0 0 2 2h2"/><path d="M16 3h2a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2 2 2 0 0 0-2 2v3a2 2 0 0 1-2 2h-2"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  'eye-off': '<path d="M3 3l18 18"/><path d="M10.58 10.58A3 3 0 0 0 13.42 13.42"/><path d="M9.88 4.24A10.63 10.63 0 0 1 12 4c6.5 0 10 8 10 8a18.5 18.5 0 0 1-4.22 5.12"/><path d="M6.61 6.61A18.5 18.5 0 0 0 2 12s3.5 8 10 8a10.4 10.4 0 0 0 4.39-.98"/>',
+  file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+  'file-text': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>',
+  folder: '<path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  image: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>',
+  list: '<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/>',
+  loader: '<path d="M21 12a9 9 0 1 1-6.2-8.56"/>',
+  message: '<path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>',
+  pause: '<path d="M10 4H6v16h4z"/><path d="M18 4h-4v16h4z"/>',
+  refresh: '<path d="M21 12a9 9 0 0 1-15.5 6.36L3 16"/><path d="M3 21v-5h5"/><path d="M3 12A9 9 0 0 1 18.5 5.64L21 8"/><path d="M21 3v5h-5"/>',
+  save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>',
+  send: '<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.33 1.05V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 8.6 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.05-.33H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 8.6a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .33-1.05V3a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 15.4 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.34.34.65.6 1 .3.28.67.43 1.05.43H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"/>',
+  table: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  x: '<path d="M18 6 6 18"/><path d="M6 6l12 12"/>'
+};
+
+function iconSvg(name, cls = 'ui-icon') {
+  const paths = ICON_PATHS[name] || ICON_PATHS.file;
+  return `<span class="${cls}" aria-hidden="true"><svg viewBox="0 0 24 24">${paths}</svg></span>`;
+}
+
+function hydrateIcons(root = document) {
+  root.querySelectorAll('.ui-icon[data-icon]').forEach(el => {
+    if (el.dataset.hydrated) return;
+    el.innerHTML = `<svg viewBox="0 0 24 24">${ICON_PATHS[el.dataset.icon] || ICON_PATHS.file}</svg>`;
+    el.dataset.hydrated = '1';
+  });
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════════════════════════════════════
@@ -951,7 +1020,7 @@ function overlayUpdate(job) {
   // Ticker text — show latest log msg or pause reason
   const logs = Array.isArray(job.logs) ? job.logs : [];
   if (isPaused) {
-    Q('#po-ticker').textContent = '⏸ ' + job.pause_reason;
+    Q('#po-ticker').textContent = 'Paused: ' + job.pause_reason;
     Q('#po-pause-reason').textContent = job.pause_reason;
     Q('#po-pause-banner').classList.add('on');
     Q('#po-spin').className = 't-spin paused';
@@ -1005,9 +1074,9 @@ function overlayFinish(ok) {
   Q('#po-track').setAttribute('aria-valuenow', 100);
 
   Q('#po-spin').className      = 't-spin ' + (ok ? 'done' : 'failed');
-  Q('#po-ticker').textContent  = ok ? '✓ Extraction complete!' : '✗ Processing failed — check logs';
+  Q('#po-ticker').textContent  = ok ? 'Extraction complete' : 'Processing failed. Check logs';
   Q('#po-tpct').textContent    = ok ? '100%' : 'ERR';
-  Q('#po-badge').textContent   = ok ? 'Done ✓' : 'Failed ✗';
+  Q('#po-badge').textContent   = ok ? 'Done' : 'Failed';
   Q('#po-badge').className     = 'proc-badge ' + (ok ? 'done' : 'failed');
   Q('#po-pause-banner').classList.remove('on');
 
@@ -1037,14 +1106,14 @@ function setType(type, el) {
   el.classList.add('active');
 
   const cfg = {
-    image: { accept: 'image/*',              sub: 'JPG, PNG, JPEG · max 50MB', icon: '🖼️' },
-    pdf:   { accept: 'application/pdf,.pdf',  sub: 'PDF files · max 50MB',      icon: '📄' },
-    doc:   { accept: '.docx,.doc,.txt',        sub: 'DOCX, DOC, TXT · max 50MB', icon: '📝' },
+    image: { accept: 'image/*',              sub: 'JPG, PNG, JPEG · max 50MB', icon: 'image' },
+    pdf:   { accept: 'application/pdf,.pdf',  sub: 'PDF files · max 50MB',      icon: 'file' },
+    doc:   { accept: '.docx,.txt',             sub: 'DOCX, TXT · max 50MB',      icon: 'file-text' },
   }[type] || {};
 
   const inp = Q('#fileInput'); if (inp) inp.accept = cfg.accept;
   const sub = Q('#dzAccept'); if (sub) sub.textContent = cfg.sub;
-  const ico = Q('#dzIcon');   if (ico) ico.textContent = cfg.icon;
+  const ico = Q('#dzIcon');   if (ico) { ico.dataset.icon = cfg.icon; ico.dataset.hydrated = ''; hydrateIcons(ico.parentElement || document); }
   clearFile();
 }
 
@@ -1055,14 +1124,19 @@ function handleFileSelect(file) {
   if (!file) return;
   State.selectedFile = file;
 
-  const typeIcons = { pdf:'📄', jpeg:'🖼️', png:'🖼️', jpg:'🖼️' };
+  const typeIcons = { pdf:'file', jpeg:'image', png:'image', jpg:'image' };
   const ext  = file.name.split('.').pop().toLowerCase();
-  const icon = typeIcons[ext] || '📝';
+  const icon = typeIcons[ext] || 'file-text';
 
   Q('#fileInfo').classList.add('on');
   Q('#fileName').textContent     = file.name;
   Q('#fileSize').textContent     = formatSize(file.size);
-  Q('#fileTypeIcon').textContent = icon;
+  const fileIcon = Q('#fileTypeIcon');
+  if (fileIcon) {
+    fileIcon.dataset.icon = icon;
+    fileIcon.dataset.hydrated = '';
+    hydrateIcons(fileIcon.parentElement || document);
+  }
   Q('#uploadBtn').disabled       = false;
   hideError();
 
@@ -1170,7 +1244,11 @@ function _setBtnLoading(on) {
   const ico = Q('#uploadBtnIcon');
   const txt = Q('#uploadBtnText');
   if (btn) btn.disabled    = on;
-  if (ico) ico.textContent = on ? '⏳' : '⚡';
+  if (ico) {
+    ico.dataset.icon = on ? 'loader' : 'activity';
+    ico.dataset.hydrated = '';
+    hydrateIcons(ico.parentElement || document);
+  }
   if (txt) txt.textContent = on ? 'Processing…' : 'Process File';
 }
 
@@ -1205,6 +1283,11 @@ async function doPoll() {
         onJobDone(job);
         overlayFinish(true);
       } else {
+        if (Array.isArray(job.profiles) && job.profiles.length) {
+          onJobDone(job);
+          switchTab('results');
+          showToast(`${job.profiles.length} verified profile${job.profiles.length !== 1 ? 's were' : ' was'} saved before the job failed`, 'warn', 6000);
+        }
         overlayFinish(false);
         showToast('Job failed. Check logs.', 'error');
       }
@@ -1237,7 +1320,7 @@ function _updateStatusCard(job) {
   const sm = Q('#statModel');    if (sm) sm.textContent = _shortModel(job.current_model || '—');
 
   // Model badges in header
-  const mb  = Q('#modelBadge');       if (mb)  mb.textContent  = '⚡ ' + _shortModel(job.current_model || '');
+  const mb  = Q('#modelBadge');       if (mb)  mb.innerHTML  = iconSvg('activity') + ' ' + esc(_shortModel(job.current_model || ''));
   const hmb = Q('#headerModelBadge'); if (hmb) hmb.textContent = _shortModel(job.current_model || '');
 
   // Pause box
@@ -1277,7 +1360,7 @@ function onJobDone(job) {
   buildJSONPreview(State.allProfiles);
   buildSQLPreview(State.allProfiles);
 
-  showToast(`✓ Extracted ${n} profile${n !== 1 ? 's' : ''} successfully!`, 'success', 4500);
+  showToast(`Extracted ${n} profile${n !== 1 ? 's' : ''} successfully`, 'success', 4500);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1596,7 +1679,7 @@ async function sendChat() {
   input.value = '';
 
   const sendBtn = Q('#chatSend'); if (sendBtn) sendBtn.disabled = true;
-  const thinking = appendMsg('ai', '⏳ Thinking…');
+  const thinking = appendMsg('ai', 'Thinking...');
 
   try {
     const res  = await apiPost('/api/chat', {
@@ -1607,7 +1690,7 @@ async function sendChat() {
     const data = await res.json();
     thinking.textContent = data.reply || data.error || 'No response';
   } catch {
-    thinking.textContent = '⚠️ Network error';
+    thinking.textContent = 'Network error';
   } finally {
     if (sendBtn) sendBtn.disabled = false;
   }
@@ -1628,25 +1711,25 @@ function appendMsg(role, text) {
 // ════════════════════════════════════════════════════════════════════════════
 async function loadHistory() {
   const list = Q('#historyList'); if (!list) return;
-  list.innerHTML = `<div class="empty-state"><span class="empty-state-icon">⏳</span><p class="empty-state-title">Loading…</p></div>`;
+  list.innerHTML = `<div class="empty-state">${iconSvg('loader', 'empty-state-icon ui-icon icon-xl')}<p class="empty-state-title">Loading...</p></div>`;
 
   try {
     const res  = await fetch('/api/uploads');
     const data = await res.json();
 
     if (!res.ok || !Array.isArray(data) || !data.length) {
-      list.innerHTML = `<div class="empty-state"><span class="empty-state-icon">📂</span><p class="empty-state-title">No uploads yet</p><p class="empty-state-sub">Process your first file to see history here</p></div>`;
+      list.innerHTML = `<div class="empty-state">${iconSvg('folder', 'empty-state-icon ui-icon icon-xl')}<p class="empty-state-title">No uploads yet</p><p class="empty-state-sub">Process your first file to see history here</p></div>`;
       return;
     }
 
-    const typeIcons = { pdf:'📄', docx:'📝', doc:'📝', txt:'📋', image:'🖼️' };
+    const typeIcons = { pdf:'file', docx:'file-text', txt:'file-text', image:'image' };
 
     list.innerHTML = data.map(u => {
-      const canExport = u.status === 'done' && u.profiles_count > 0;
+      const canExport = u.profiles_count > 0;
       const hasJob    = !!u.job_id;
       return `
         <div class="hist-item" id="hist-${esc(String(u.id))}">
-          <span class="hist-icon" aria-hidden="true">${typeIcons[u.file_type] || '📄'}</span>
+          ${iconSvg(typeIcons[u.file_type] || 'file', 'hist-icon ui-icon icon-lg')}
           <div class="hist-meta">
             <div class="hist-name" title="${esc(u.original_filename)}">${esc(u.original_filename)}</div>
             <div class="hist-detail">
@@ -1658,23 +1741,23 @@ async function loadHistory() {
             <span class="status-badge status-${esc(u.status)}">${esc(u.status)}</span>
             ${canExport && hasJob ? `
               <div class="dl-popup">
-                <button class="hist-btn download" data-menu="dlm-${esc(String(u.id))}" onclick="toggleHistDl(event,this)">⬇ Download ▾</button>
+                <button class="hist-btn download" data-menu="dlm-${esc(String(u.id))}" onclick="toggleHistDl(event,this)">${iconSvg('download')} Download</button>
                 <div class="dl-popup-menu" id="dlm-${esc(String(u.id))}">
-                  <div class="dl-menu-item" data-job="${esc(u.job_id)}" data-fmt="excel" data-menu="dlm-${esc(String(u.id))}" onclick="histExportItem(this)">📊 Excel</div>
-                  <div class="dl-menu-item" data-job="${esc(u.job_id)}" data-fmt="csv"   data-menu="dlm-${esc(String(u.id))}" onclick="histExportItem(this)">📋 CSV</div>
+                  <div class="dl-menu-item" data-job="${esc(u.job_id)}" data-fmt="excel" data-menu="dlm-${esc(String(u.id))}" onclick="histExportItem(this)">${iconSvg('table')} Excel</div>
+                  <div class="dl-menu-item" data-job="${esc(u.job_id)}" data-fmt="csv"   data-menu="dlm-${esc(String(u.id))}" onclick="histExportItem(this)">${iconSvg('file-text')} CSV</div>
                   <div class="dl-menu-item" data-job="${esc(u.job_id)}" data-fmt="json"  data-menu="dlm-${esc(String(u.id))}" onclick="histExportItem(this)">{ } JSON</div>
-                  <div class="dl-menu-item" data-job="${esc(u.job_id)}" data-fmt="sql"   data-menu="dlm-${esc(String(u.id))}" onclick="histExportItem(this)">🗄 SQL</div>
+                  <div class="dl-menu-item" data-job="${esc(u.job_id)}" data-fmt="sql"   data-menu="dlm-${esc(String(u.id))}" onclick="histExportItem(this)">${iconSvg('database')} SQL</div>
                 </div>
-              </div>` : `<button class="hist-btn download" disabled>⬇ Download</button>`}
-            ${hasJob ? `<button class="hist-btn open" data-job="${esc(u.job_id)}" onclick="histOpen(this.dataset.job)">👁 Open</button>` : ''}
+              </div>` : `<button class="hist-btn download" disabled>${iconSvg('download')} Download</button>`}
+            ${hasJob ? `<button class="hist-btn open" data-job="${esc(u.job_id)}" onclick="histOpen(this.dataset.job)">${iconSvg('eye')} Open</button>` : ''}
             <button class="hist-btn delete" data-id="${esc(String(u.id))}" data-name="${esc(u.original_filename)}"
-                    onclick="histDelete(this.dataset.id, this.dataset.name)">✕ Delete</button>
+                    onclick="histDelete(this.dataset.id, this.dataset.name)">${iconSvg('x')} Delete</button>
           </div>
         </div>`;
     }).join('');
 
   } catch {
-    list.innerHTML = `<div class="empty-state"><span class="empty-state-icon">⚠️</span><p class="empty-state-title">Failed to load history</p></div>`;
+    list.innerHTML = `<div class="empty-state">${iconSvg('alert', 'empty-state-icon ui-icon icon-xl')}<p class="empty-state-title">Failed to load history</p></div>`;
   }
 }
 
@@ -1767,7 +1850,7 @@ function switchPrevTab(name, el) {
 // ════════════════════════════════════════════════════════════════════════════
 function showError(msg) {
   const e = Q('#sidebarError');
-  if (e) { e.textContent = '⚠ ' + msg; e.classList.add('on'); }
+  if (e) { e.textContent = msg; e.classList.add('on'); }
   showToast(msg, 'error');
 }
 function hideError() { const e = Q('#sidebarError'); if (e) e.classList.remove('on'); }
@@ -1777,20 +1860,21 @@ function updateModelBadge() {
   const s   = _shortModel(v);
   const cmb = Q('#currentModelBadge'); if (cmb) cmb.textContent = s;
   const hmb = Q('#headerModelBadge');  if (hmb) hmb.textContent = s;
-  const mb  = Q('#modelBadge');        if (mb)  mb.textContent  = '⚡ ' + s;
+  const mb  = Q('#modelBadge');        if (mb)  mb.innerHTML  = iconSvg('activity') + ' ' + esc(s);
 }
 
 function toggleApiKeyVisibility() {
   const inp = Q('#apiKey');
   const btn = Q('#pwToggleBtn'); if (!inp) return;
   inp.type     = inp.type === 'password' ? 'text' : 'password';
-  if (btn) btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+  if (btn) btn.innerHTML = iconSvg(inp.type === 'password' ? 'eye' : 'eye-off');
 }
 
 // ════════════════════════════════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
+  hydrateIcons();
   loadHistory();
   updateModelBadge();
 });
